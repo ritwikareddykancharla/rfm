@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{textcomp}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = blue,
+    citecolor  = teal,
+    urlcolor   = magenta
+}
+
+\setlist{nosep,leftmargin=1.5em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{
+Routing Foundation Model (RFM):\\
+A Unified Neural Optimization Framework\\
+for Large-Scale Routing and MILPs
+}
+
+\author{
+  Ritwika Kancharla\\
+  Independent Researcher\\
+  \texttt{ritwikareddykancharla@gmail.com}
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Large-scale routing and supply-chain systems such as Amazon's
+middle-mile network are routinely modeled as mixed-integer linear
+programs (MILPs) with many binary variables and tight operational
+constraints. Classical solvers provide high-quality solutions but
+are often too slow for real-time re-optimization, while existing
+Neural Combinatorial Optimization models do not explicitly encode
+MILP structure or constraint geometry. This monograph proposes the
+\emph{Routing Foundation Model (RFM)}, a unified neural optimization
+framework that treats transformer-style architectures as learned
+surrogate solvers for routing MILPs. RFM combines MILP-aware
+encoders, dual-informed attention via violation signals $Ax - b$,
+constraint-specialized Mixture-of-Experts, diffusion-style priors
+over routing structures, and world-model components for multi-step
+logistics planning. We outline the framework, connect it to
+primal--dual and proximal optimization, and discuss experimental
+protocols and open problems toward foundation models for routing.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+% TODO: paste / adapt your existing intro + motivation text here.
+
+\section{Background: Routing, MILPs, and Neural Optimization}
+
+\section{Transformers Through the Lens of Optimization}
+
+\section{Problem Formulation: Routing MILPs at Scale}
+
+\section{Routing Foundation Model (RFM): High-Level Architecture}
+
+\section{Component I: MILP-Transformer as Surrogate Solver}
+
+\section{Component II: Neural Routing Optimization Model (NROM)}
+
+\section{Component III: Diffusion Priors for Routing}
+
+\section{Component IV: Routing World Models}
+
+\section{Training, Evaluation, and Benchmarks}
+
+\section{Relation to Prior Work}
+
+\section{Discussion and Open Problems}
+
+\section{Conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+
+\section{Additional Derivations}
+
+\section{Implementation Details}
+
+\end{document}

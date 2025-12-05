@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: rfm
+Version: 0.1.0
+Summary: Routing Foundation Model (RFM): neural optimization framework for routing MILPs
+Author: Ritwika Kancharla
+Requires-Dist: torch
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: networkx
+Requires-Dist: pyyaml
+Requires-Dist: tqdm
+Requires-Dist: matplotlib
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: summary

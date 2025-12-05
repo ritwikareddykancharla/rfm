@@ -1,0 +1,11 @@
+model:
+  n_vars: 32
+  hidden_dim: 128
+  n_heads: 4
+  n_experts: 4
+  n_steps: 4
+  tau: 0.5
+
+training:
+  lr: 0.001
+  device: "cpu"
