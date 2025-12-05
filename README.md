@@ -2,7 +2,7 @@
 ### *A Unified Neural Optimization Framework for Large-Scale Routing and MILPs*
 
 <p align="left">
-  <img src="https://img.shields.io/badge/status-active-brightgreen?style=flat-square" />
+  <img src="https://img.shields.io/badge/status-in%20progress-yellow?style=flat-square" />
   <img src="https://img.shields.io/badge/python-3.10+-blue?style=flat-square" />
   <img src="https://img.shields.io/badge/pytorch-2.x-red?style=flat-square" />
   <img src="https://img.shields.io/badge/license-MIT-purple?style=flat-square" />
