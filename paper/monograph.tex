@@ -507,6 +507,7 @@ The contributions of this monograph are:
     \item World-model architectures enabling multi-step routing and planning.
 \end{itemize}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Background: Routing, MILPs, and Neural Optimization}
 \label{chap:background}
@@ -531,113 +532,204 @@ extensively studied in operations research.
 
 \subsection{Vehicle Routing Problems}
 
-The Vehicle Routing Problem (VRP) and its variants---including capacitated
-VRP, VRP with time windows (VRPTW), pickup-and-delivery, and multi-depot
-VRP---serve as foundational abstractions for transportation systems. These
-problems often require constructing one or more tours that satisfy
-capacity and demand constraints while minimizing total travel cost.
+The Vehicle Routing Problem (VRP) is a central abstraction in
+transportation and logistics optimization. In its classical form, VRP
+requires constructing one or more tours that begin and end at depots,
+serve a set of geographically distributed customers, and minimize
+overall travel cost. Numerous variants—each reflecting different
+operational requirements—have been studied extensively in operations
+research. Examples include:
 
-Neural solution approaches to routing tasks gained attention with pointer
-networks \cite{vinyals2015pointer} and later transformer-based solvers
-\cite{kool2019attention}. While these models excel on Euclidean routing
-benchmarks, they typically lack structural features needed in real
-logistics systems, such as flow conservation or facility-level
-constraints.
+\begin{itemize}
+    \item \textbf{Capacitated VRP (CVRP):} Each vehicle has a fixed
+    carrying capacity, and customer demands must be fully satisfied.
+    
+    \item \textbf{VRP with Time Windows (VRPTW):} Deliveries must occur
+    within specified time intervals, introducing temporal feasibility
+    constraints in addition to routing feasibility.
+    
+    \item \textbf{Pickup-and-Delivery VRP (PDVRP):} Shipments must be
+    picked up and delivered in precedence-respecting pairs.
+    
+    \item \textbf{Multi-Depot VRP (MDVRP):} Fleet operations originate
+    from multiple depots, often with heterogeneous vehicle classes or
+    coverage territories.
+\end{itemize}
+
+Neural approaches to VRP began with pointer networks
+\cite{vinyals2015pointer}, which demonstrated that sequence models can
+construct feasible tours for small Euclidean instances. Subsequent work
+introduced reinforcement learning methods
+\cite{bello2016neural,nazari2018reinforcement} and transformer-based
+policies \cite{kool2019attention}, leading to improved generalization and
+higher-quality solutions.
+
+However, these models generally omit structural components fundamental to
+industrial routing—such as flow conservation, precedence constraints,
+facility-level capacity, and multi-commodity flows. As a result,
+state-of-the-art Neural CO solvers often perform well on synthetic VRP
+benchmarks but struggle to transfer to the richer, coupled constraint
+systems that arise in real logistics networks.
+
 
 \subsection{Middle-Mile and Last-Mile Logistics}
 
-Industrial routing systems for e-commerce and parcel delivery extend far
-beyond classical VRP. Middle-mile logistics connects fulfillment centers,
-sorting centers, and distribution nodes via scheduled or dynamically
-generated transportation links. Last-mile routing involves thousands of
-delivery units, complex timing constraints, and volatile demand patterns.
+Industrial logistics systems, such as those operated by Amazon, UPS, or
+national postal networks, extend far beyond classical Euclidean VRP
+benchmarks. They involve large heterogeneous networks of fulfillment
+centers (FCs), sorting centers (SCs), delivery stations (DSs), and
+thousands of vehicles operating under strict time, capacity, and service
+constraints.
 
-Unlike classical routing benchmarks, real networks exhibit:
+\paragraph{Middle-mile logistics.}
+The middle-mile layer transports bulk shipments between FCs, SCs, and
+regional hubs. These movements are governed by scheduled line-hauls,
+dynamic network flows, trailer capacities, and cut-off times. Unlike
+classical VRPs, middle-mile routing:
 
 \begin{itemize}
-    \item heterogeneous node types (e.g., FCs, SCs, DSs),
-    \item multi-commodity flows,
-    \item strict precedence and SLA constraints,
-    \item highly dynamic state (traffic, delays),
-    \item massive scale (orders of magnitude larger than VRP instances).
+    \item operates on multi-commodity flows rather than single-tour
+    routes,
+    \item must respect facility processing limits and dock constraints,
+    \item involves time-dependent travel times and congestion,
+    \item requires coordination between upstream (inventory) and downstream
+    (delivery) pipelines.
 \end{itemize}
 
-These factors make MILP formulations both expressive and indispensable,
-but also computationally challenging.
+These interactions induce complex coupling constraints that are naturally
+captured by MILP formulations but difficult for purely neural models to
+learn.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Last-mile logistics.}
+Last-mile routing handles the final delivery from DSs to customers and is
+characterized by:
+
+\begin{itemize}
+    \item thousands of delivery stops with hard time windows,
+    \item highly volatile demand patterns (same-day and next-day orders),
+    \item heterogeneous vehicle types and driver constraints,
+    \item strong SLA requirements that penalize lateness severely,
+    \item real-time disruptions such as traffic, weather, or driver delays.
+\end{itemize}
+
+Compared to classical VRPTW instances, last-mile systems can be two to
+three orders of magnitude larger, making exact optimization
+computationally prohibitive under tight latency budgets.
+
+\paragraph{Implications for modeling.}
+Both middle-mile and last-mile layers exhibit structural properties not
+captured by traditional VRP formulations:
+
+\begin{itemize}
+    \item hierarchical network structure (FC $\rightarrow$ SC $\rightarrow$ DS),
+    \item interactions between flows, capacity, and timing,
+    \item dynamic and stochastic environment state,
+    \item a mix of binary decisions (activations, assignments) and continuous
+    quantities (flows, volumes, travel times).
+\end{itemize}
+
+These characteristics motivate the need for hybrid models that combine
+the expressiveness of MILPs with the scalability and adaptability of
+learned neural components—one of the central goals of the Routing
+Foundation Model.
+
 \section{Mixed-Integer Linear Programming (MILP)}
 
-MILPs provide a general modeling framework for routing and logistics
-problems. An MILP consists of a linear objective function and linear
-constraints, with some or all decision variables restricted to be
-integer-valued:
-
+Mixed-Integer Linear Programs (MILPs) provide a flexible and expressive
+modeling framework for routing and logistics optimization. A canonical
+binary MILP takes the form:
 \[
 \min_{x} \; c^\top x 
 \quad \text{s.t.} \quad 
-Ax \le b,\quad x \in \{0,1\}^n.
+Ax \le b,\qquad x \in \{0,1\}^n,
 \]
+where $x$ encodes discrete routing decisions, $A$ captures structural and
+operational constraints, and $c$ encodes travel costs, penalties, or
+service-level objectives.
 
-Here, the matrix $A$ captures structural requirements such as flow
-conservation, capacity limits, time-window feasibility, and precedence
-relationships. The cost vector $c$ encodes objectives such as distance,
-delay penalties, or congestion costs.
+The constraint matrix $A$ naturally represents flow conservation, vehicle
+capacity limits, time-window feasibility, path eliminations, and other
+routing-specific requirements. Because these constraints interact
+combinatorially, MILPs remain the gold standard for high-fidelity
+routing models \cite{wolsey1999integer,bertsimas1997introduction}.
 
-MILPs remain the gold standard for high-fidelity routing optimization
-\cite{wolsey1999integer,bertsimas1997introduction}. However, classical
-solvers face inherent challenges:
+Despite their modeling power, classical MILP solvers face significant
+challenges in large-scale, time-sensitive logistics applications:
 
 \begin{itemize}
-    \item combinatorial explosion of the search space,
-    \item large branch-and-bound trees,
-    \item expensive cut generation,
-    \item unpredictable latency on real-world instances.
+    \item \textbf{Combinatorial blow-up:} The feasible region contains
+    exponentially many integer assignments.
+    \item \textbf{Branch-and-bound complexity:} Search trees can grow extremely
+    large even with strong cutting planes.
+    \item \textbf{Latency unpredictability:} Runtime varies widely across
+    instances, which is incompatible with real-time routing requirements.
+    \item \textbf{Warm-start fragility:} Small perturbations in demand or 
+    topology often invalidate previously optimal bases.
 \end{itemize}
 
-Even with decades of optimization research, large routing MILPs remain
-difficult to solve within tight operational time budgets.
+As a result, solving large routing MILPs repeatedly---or under stringent
+latency constraints---remains difficult even for state-of-the-art solvers
+such as Gurobi, CPLEX, and SCIP.
 
 \subsection{Primal--Dual and Lagrangian Views}
 
-Many solver techniques rely on primal--dual reasoning, where violation
-signals $v = \max(0, Ax - b)$ and their dual multipliers inform branching,
-cutting, and heuristic decisions. Lagrangian relaxation provides an
-alternative view:
-
+Many algorithmic components in modern solvers can be interpreted through
+primal--dual reasoning. Constraint violations
+\[
+v = \max(0, Ax - b)
+\]
+induce dual multipliers that influence branching, cut selection, and 
+heuristic refinement. Lagrangian relaxation provides a complementary view
+via the augmented objective
 \[
 \mathcal{L}(x, \lambda) = c^\top x + \lambda^\top (Ax - b),
 \]
+which motivates iterative updates resembling dual ascent and
+approximate primal minimization.
 
-which leads to iterative updates resembling gradient ascent in the dual
-domain and heuristic search in the primal domain. These conceptual tools
-inspire several components of the MILP-Transformer introduced later.
+These perspectives are particularly relevant for the RFM architecture:
+they inspire the design of dual-aware attention mechanisms,
+constraint-informed embeddings, and proximal refinement steps used in the
+MILP-Transformer.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Neural Combinatorial Optimization}
 
-Neural Combinatorial Optimization (Neural CO) seeks to approximate
-solutions to NP-hard problems through learned heuristics. Pointer
-networks \cite{vinyals2015pointer} were the first sequence models
-designed to construct combinatorial structures. Subsequent works used
-reinforcement learning \cite{bello2016neural,nazari2018reinforcement} and
-transformers \cite{kool2019attention} to improve generalization and
-construction quality.
+Neural Combinatorial Optimization (Neural CO) refers to methods that
+approximate solutions to NP-hard problems using learned heuristics.
+Pointer networks \cite{vinyals2015pointer} first demonstrated that
+sequence-to-sequence architectures can construct combinatorial objects
+such as tours. Subsequent works applied reinforcement learning
+\cite{bello2016neural,nazari2018reinforcement} and transformer-based
+architectures \cite{kool2019attention} to the Vehicle Routing Problem
+(VRP) and related tasks, achieving competitive performance on
+Euclidean benchmark instances.
 
-Despite strong empirical performance on benchmark tasks, Neural CO models
-face several limitations:
+While Neural CO models offer extremely fast inference and often learn
+powerful construction heuristics, they exhibit several key limitations:
 
 \begin{itemize}
-    \item \textbf{Weak constraint handling:} They do not model MILP structure
-    explicitly, making feasibility brittle.
-    \item \textbf{Limited transferability:} They struggle to generalize across
-    network sizes, topologies, and constraint sets \cite{joshi2020learning}.
-    \item \textbf{Lack of interpretability:} Their internal states do not
-    correspond to optimization primitives such as dual variables.
+    \item \textbf{Weak constraint handling:} Most architectures operate purely
+    in the space of sequences or actions and do not encode MILP-style
+    constraint structure, making feasibility fragile—especially for
+    real-world routing problems with timing, capacity, precedence, or
+    multi-commodity requirements.
+
+    \item \textbf{Limited transferability:} Models trained on specific network
+    distributions frequently fail to generalize to new sizes, topologies, or
+    constraint regimes, as demonstrated in \cite{joshi2020learning}.
+
+    \item \textbf{Lack of interpretability:} Internal representations rarely
+    correspond to optimization primitives such as reduced costs,
+    constraint violations, or dual signals.
 \end{itemize}
 
-These issues arise because Neural CO models primarily operate in the
-policy or sequence space rather than in the constraint space.
+These challenges arise because Neural CO methods typically reason in the
+\emph{policy space} rather than in the \emph{constraint space}. As a
+result, they lack the structural inductive biases needed for reliable,
+scalable, and feasible routing in industrial logistics settings.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Deep Learning for MILPs (DL4MIP)}
@@ -673,19 +765,32 @@ instances without solver intervention.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Limitations of Current Approaches}
 
-The methods above reveal several fundamental barriers:
+The approaches described above highlight a persistent methodological gap
+in large-scale routing optimization:
 
 \begin{itemize}
-    \item Classical MILPs are accurate but slow.
-    \item Neural CO is fast but fails under structural or distributional
-    shift.
-    \item Existing hybrid MILP-ML solutions depend heavily on solver
-    infrastructure.
+    \item \textbf{Classical MILPs are accurate but slow.}  
+    They offer strong modeling fidelity and feasibility guarantees, but
+    suffer from combinatorial explosion, highly variable runtimes, and
+    poor suitability for real-time or high-frequency decision-making.
+
+    \item \textbf{Neural CO methods are fast but structurally weak.}  
+    Transformer- and RL-based routing solvers produce solutions in
+    milliseconds, yet they do not encode constraint families, dual
+    structure, or MILP algebraic relations, leading to brittle feasibility
+    and poor generalization under distribution shift.
+
+    \item \textbf{Hybrid ML–MILP pipelines still rely on heavy solvers.}  
+    Learning to branch, learning warm-starts, or differentiable LP layers
+    improve specific solver subroutines, but full problem resolution still
+    depends on classical branch-and-bound infrastructure with its inherent
+    latency limitations.
 \end{itemize}
 
-This gap motivates the development of RFM: a fully neural,
-structure-aware surrogate solver that approximates MILP reasoning while
-remaining fast and generalizable.
+These limitations collectively motivate the development of the Routing
+Foundation Model (RFM): a fully neural, structure-aware surrogate solver
+that emulates key MILP reasoning mechanisms while enabling fast,
+scalable, and generalizable routing decisions.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Positioning RFM Within This Landscape}
@@ -938,6 +1043,7 @@ insights that guide the architecture of RFM:
 These insights form the conceptual basis of the MILP-Transformer
 architecture described in later chapters and motivate the broader design
 of the Routing Foundation Model.
+
 
 
 % content unchanged
