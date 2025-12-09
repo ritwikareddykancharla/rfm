@@ -1,0 +1,4274 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Routing Foundation Model (RFM) — Technical Monograph
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt]{report}
+
+% -------------------- TYPOGRAPHY --------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\linespread{1.1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   AESTHETIC THESIS PREAMBLE
+%            (for Routing Foundation Model Monograph)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   FONT & TYPOGRAPHY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Premium academic font (Palatino-style)
+\usepackage{mathpazo} 
+\linespread{1.05}  % elegant line spacing
+
+% % Microtype for smooth kerning
+% \usepackage[final,tracking=true,kerning=true]{microtype}
+% \SetTracking{encoding=*}{40}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   GEOMETRY & SPACING
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[margin=1.1in]{geometry}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}   % modern thesis aesthetic
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   COLORS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{xcolor}
+
+% Define signature colors (Amazon-science style)
+\definecolor{chapterblue}{HTML}{1A3E73}
+\definecolor{accentgray}{gray}{0.35}
+\definecolor{lightgray}{gray}{0.7}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   HEADERS + FOOTERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\fancyhf{} % clear all header and footer fields
+
+% LEFT: Chapter title only
+\fancyhead[L]{\nouppercase{\leftmark}}
+
+% RIGHT: Page number only
+\fancyhead[R]{\thepage}
+
+% Header rule
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{lightgray}\hrule width\headwidth}
+
+% Fix head height warning
+\setlength{\headheight}{15pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   CHAPTER STYLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{titlesec}
+
+\titleformat{\chapter}[display]
+  {\Huge\bfseries\color{chapterblue}}
+  {\filleft\Large\color{accentgray}\chaptertitlename\ \thechapter}
+  {1ex}
+  {\titlerule[1pt]\vspace{2ex}\filright}
+  [\vspace{1ex}\titlerule]
+
+\titleformat{\section}
+  {\Large\bfseries\color{black}}
+  {\thesection}{0.8em}{}
+
+\titleformat{\subsection}
+  {\large\bfseries}{\thesubsection}{0.6em}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   TABLES, FIGURES, CAPTIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{float}
+
+\usepackage{caption}
+\captionsetup{
+    font=small,
+    labelfont=bf,
+    margin=10pt,
+    skip=8pt
+}
+
+% -------------------- TIKZ FOR ARCH DIAGRAMS --------------------
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,shapes.misc,calc}
+
+\tikzset{
+  module/.style={
+    rectangle,
+    rounded corners=4pt,
+    draw=chapterblue!80,
+    thick,
+    fill=chapterblue!4,
+    minimum width=3.5cm,
+    minimum height=1.0cm,
+    align=center
+  },
+  smallmodule/.style={
+    rectangle,
+    rounded corners=3pt,
+    draw=chapterblue!60,
+    thick,
+    fill=chapterblue!2,
+    minimum width=2.7cm,
+    minimum height=0.8cm,
+    align=center,
+    font=\footnotesize
+  },
+  io/.style={
+    rectangle,
+    rounded corners=4pt,
+    draw=black!60,
+    thick,
+    fill=black!3,
+    minimum width=3.2cm,
+    minimum height=0.9cm,
+    align=center
+  },
+  arrow/.style={
+    -{Latex[length=2.5mm,width=2mm]},
+    thick
+  },
+  dashedarrow/.style={
+    -{Latex[length=2.5mm,width=2mm]},
+    dashed,
+    thick
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   LISTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.5em}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   HYPERREF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = chapterblue,
+    citecolor  = teal,
+    urlcolor   = magenta
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   MATH + ALGORITHMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mathtools}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   CLEVERREF
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[capitalize,noabbrev]{cleveref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   PRETTY THEOREM BOXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[most]{tcolorbox}
+
+\tcbset{
+  sharp corners,
+  colback=white,
+  colframe=chapterblue!50!black,
+  boxrule=0.9pt,
+  fonttitle=\bfseries,
+  top=6pt,
+  bottom=6pt
+}
+
+\newtcolorbox{theoremBox}[1]{title={#1}}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newenvironment{Theorem}{
+  \begin{theoremBox}{Theorem}\begin{theorem}}
+  {\end{theorem}\end{theoremBox}}
+
+\newtheorem{lemma}{Lemma}[chapter]
+\newenvironment{Lemma}{
+  \begin{theoremBox}{Lemma}\begin{lemma}}
+  {\end{lemma}\end{theoremBox}}
+
+\newtheorem{proposition}{Proposition}[chapter]
+\newenvironment{Proposition}{
+  \begin{theoremBox}{Proposition}\begin{proposition}}
+  {\end{proposition}\end{theoremBox}}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newenvironment{Definition}{
+  \begin{theoremBox}{Definition}\begin{definition}}
+  {\end{definition}\end{theoremBox}}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[chapter]
+\newenvironment{Remark}{
+  \begin{theoremBox}{Remark}\begin{remark}}
+  {\end{remark}\end{theoremBox}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   NICE TOC
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tocloft}
+\renewcommand{\cftchapfont}{\bfseries\color{chapterblue}}
+\renewcommand{\cftsecfont}{\color{black}}
+\renewcommand{\cftchappagefont}{\bfseries\color{chapterblue}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   FINAL TOUCHES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% -------------------- GEOMETRY --------------------
+\usepackage[margin=1.1in]{geometry}
+
+% -------------------- PACKAGES --------------------
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{textcomp}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{xcolor}
+
+\usepackage{natbib}
+\usepackage{xurl}
+\usepackage{url}
+\usepackage{breakurl}
+
+\sloppy
+\emergencystretch=3em
+
+\bibliographystyle{abbrvnat}
+
+% -------------------- HYPERREF --------------------
+\usepackage{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = blue,
+    citecolor  = teal,
+    urlcolor   = magenta
+}
+
+% Fix math in bookmarks
+\pdfstringdefDisableCommands{%
+  \def\le{<=}%
+  \def\ge{>=}%
+  \def\in{in}%
+}
+
+% -------------------- CHAPTER STYLE --------------------
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\quad}{0pt}{}
+
+% -------------------- LISTS --------------------
+\setlist{nosep,leftmargin=1.5em}
+
+
+% -------------------- TITLE PAGE --------------------
+\title{
+\Huge \textbf{Routing Foundation Model (RFM)}\\[8pt]
+\Large A Unified Neural Optimization Framework\\
+for Large-Scale Routing and MILPs
+}
+
+\author{
+\Large Ritwika Kancharla\\[4pt]
+\large \texttt{ritwikareddykancharla@gmail.com}
+}
+
+\date{\today}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+\thispagestyle{empty}
+
+\pagenumbering{roman}
+
+% -------------------- ABSTRACT --------------------
+\begin{abstract}
+Large-scale routing and supply-chain systems such as Amazon's
+middle-mile and last-mile networks are routinely modeled as
+mixed-integer linear programs (MILPs) with tens of thousands of
+binary variables and tight operational constraints.
+Classical solvers provide high-quality solutions but are often too
+slow for real-time re-optimization, while existing Neural
+Combinatorial Optimization models do not explicitly encode MILP
+structure or constraint geometry.
+This monograph proposes the \emph{Routing Foundation Model (RFM)},
+a unified neural optimization framework that treats transformer-style
+architectures as learned surrogate solvers for routing MILPs.
+RFM combines (i) MILP-aware encoders, (ii) constraint-specialized
+Mixture-of-Experts, (iii) dual-informed attention via violation
+signals $Ax - b$, (iv) diffusion-style generative priors over
+discrete routing decisions, and (v) world-model components for
+multi-step logistics planning.
+We formulate the framework, connect it to classical primal--dual and
+proximal optimization, and outline experimental protocols and open
+problems toward foundation models for routing and supply-chain
+optimization.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+\pagenumbering{arabic}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Introduction}
+\label{chap:intro}
+
+Modern logistics networks---including those operated by Amazon, UPS,
+DHL, and national postal systems---form some of the most complex
+engineered systems in the world. These networks must repeatedly solve
+large-scale, tightly constrained routing problems involving
+transportation links, facility capacities, shipment flows, and strict
+service-level agreements (SLAs). Solving such problems reliably,
+efficiently, and under stringent latency requirements is essential for
+operational excellence yet remains one of the hardest challenges in
+combinatorial optimization \cite{wolsey1999integer,bertsimas1997introduction}.
+
+Traditional mixed-integer linear programming (MILP) formulations provide
+a principled mathematical foundation for routing problems. They encode
+discrete decisions, coupling constraints, and objective functions in a
+unified structure amenable to branch-and-bound, cutting planes, and
+primal--dual heuristics. Modern solvers such as Gurobi, CPLEX, and SCIP
+are extraordinarily powerful, but their runtime frequently increases
+sharply with instance size, making repeated optimization infeasible for
+real-time decision-making in dynamic supply-chain environments
+\cite{nair2020solving,lodi2017learning}. Even when warm-started, large
+MILPs often exceed the available latency budget.
+
+In parallel, neural combinatorial optimization (Neural CO) has emerged as
+a compelling paradigm. Sequence-to-sequence architectures such as pointer
+networks \cite{vinyals2015pointer}, transformer-based routing solvers
+\cite{kool2019attention}, and reinforcement-learning approaches for VRP
+\cite{nazari2018reinforcement,bello2016neural} have demonstrated the
+ability to produce feasible routing solutions with extremely low runtime
+at inference. These models show that learned heuristics can outperform
+classical handcrafted heuristics under certain conditions. However,
+existing Neural CO approaches typically do not encode the algebraic
+structure of MILPs, lack explicit dual reasoning, and often generalize
+poorly outside their training distributions
+\cite{joshi2020learning,bengio2021machine}.
+
+This monograph introduces the \textbf{Routing Foundation Model (RFM)}, a
+unified neural optimization framework that integrates the strengths of
+classical MILP solving with modern deep learning architectures. RFM
+treats transformer-style networks not simply as policy generators but as
+\emph{learned surrogate solvers} whose internal layers approximate
+primal--dual reasoning, constraint interactions, and refinement steps. By
+embedding MILP structure directly into attention mechanisms, refinement
+layers, and Mixture-of-Experts (MoE), RFM provides a scalable,
+structure-aware backbone for large-scale routing optimization.
+
+\vspace{1em}
+\section{Routing at Industrial Scale}
+
+Large-scale routing networks exhibit four defining characteristics:
+
+\begin{itemize}
+    \item \textbf{High dimensionality:} Middle-mile and last-mile routing
+    problems can involve tens or hundreds of thousands of binary variables
+    describing flows, activation decisions, and feasible transitions
+    \cite{chen2021learning}.
+    
+    \item \textbf{Dynamic environments:} Demand surges, congestion, weather
+    variation, and facility disruptions require models that can adapt quickly
+    to new conditions.
+    
+    \item \textbf{Hard feasibility constraints:} Violations of capacity,
+    precedence, or timing constraints are operationally unacceptable, making
+    feasibility a first-class requirement.
+    
+    \item \textbf{Strict latency constraints:} Inference must often complete
+    within milliseconds to seconds.
+\end{itemize}
+
+These constraints collectively exceed the capability of classical
+optimization techniques when scaled to real-time, high-frequency
+decision-making.
+
+\vspace{1em}
+\section{MILPs, Solvers, and Latency Bottlenecks}
+
+Routing problems are frequently modeled as MILPs:
+\[
+\min_x \; c^\top x 
+\quad\text{s.t.}\quad 
+Ax \le b,\;\;
+x \in \{0,1\}^n,
+\]
+where $x$ encodes routing decisions and $A$ encodes feasibility and
+capacity constraints. MILPs offer provable guarantees and powerful
+modeling abstractions \cite{wolsey1999integer}, but exhibit the following
+challenges in large-scale settings:
+
+\begin{itemize}
+    \item computational cost can grow exponentially in the worst case;
+    \item presolve and branching heuristics may still exceed latency budgets;
+    \item solver warm-starting remains expensive under large perturbations;
+    \item generating many feasible alternatives is slow.
+\end{itemize}
+
+Recent work on integrating learning inside solvers---e.g., learning to
+branch \cite{gasse2019exact,lodi2017learning} or learning warm-starts
+\cite{nair2020solving}---has shown promise but still depends on a heavy
+solver backend.
+
+\vspace{1em}
+\section{From Neural CO to Neural Surrogate Solvers}
+
+Transformer-based neural solvers have demonstrated the potential of
+sequence modeling in routing tasks \cite{kool2019attention}. Reinforcement-learning
+methods \cite{nazari2018reinforcement,bello2016neural} and GNN-based
+policies \cite{joshi2020learning} improve generalization but still lack
+explicit representations of constraint families, dual variables, or KKT
+structure. As a consequence, they often:
+
+\begin{itemize}
+    \item fail to generalize to new operational constraints;
+    \item provide no certificate of feasibility;
+    \item degrade unpredictably under perturbations;
+    \item lack robustness guarantees.
+\end{itemize}
+
+RFM proposes a different paradigm: treat neural models as
+\emph{approximate optimization layers} inspired by differentiable
+optimization \cite{amos2017optnet,poganvcic2020differentiable} and
+implicit-layer modeling \cite{blondel2022efficient}. This enables
+transformers to approximate dual updates, constraint interactions, and
+proximal refinement---bridging the gap between classical optimization
+and deep learning.
+
+\vspace{1em}
+\section{Goals and Scope of This Monograph}
+
+This monograph advances the foundations of Routing Foundation Models by:
+
+\begin{itemize}
+    \item formalizing routing MILPs and their neural approximations;
+    \item introducing the \textbf{MILP-Transformer}, a differentiable surrogate
+    solver inspired by primal--dual optimization;
+    \item defining the \textbf{Neural Routing Optimization Model (NROM)}, an
+    architecture informed by MILP structure and graph topology;
+    \item proposing diffusion priors \cite{nichol2021improved,hoogeboom2021autoregressive}
+    for modeling distributions over feasible routing patterns;
+    \item framing routing as a world-model learning problem
+    \cite{ha2018worldmodels,hafner2019planet}.
+\end{itemize}
+
+These components combine to form a scalable and generalizable foundation
+model for routing and supply-chain optimization.
+
+\vspace{1em}
+\section*{Contributions}
+
+The contributions of this monograph are:
+
+\begin{itemize}
+    \item A unified framework integrating MILP structure with
+    transformer-based neural architectures.
+    \item The MILP-Transformer: a surrogate solver incorporating constraint
+    embeddings, dual-informed attention, and refinement layers.
+    \item The NROM architecture: a structure-aware routing policy grounded in
+    MILP variables, constraints, and graph representations.
+    \item Diffusion priors for generating feasible routing configurations.
+    \item World-model architectures enabling multi-step routing and planning.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Background: Routing, MILPs, and Neural Optimization}
+\label{chap:background}
+
+Routing and network optimization problems form a central class of
+combinatorial optimization problems arising in logistics, transportation,
+and supply-chain systems. This chapter reviews the key mathematical
+foundations relevant to the Routing Foundation Model (RFM), including
+routing formulations, mixed-integer linear programming (MILP), neural
+combinatorial optimization, and recent approaches that integrate machine
+learning with classical solvers. Together, these concepts define the
+landscape in which RFM operates.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Routing and Network Optimization Problems}
+
+Routing problems involve determining the movement of vehicles, shipments,
+or flows across a network while satisfying operational constraints such
+as capacity, timing, distance, and precedence. Many such problems fall
+into the broad class of NP-hard combinatorial problems and have been
+extensively studied in operations research.
+
+\subsection{Vehicle Routing Problems}
+
+The Vehicle Routing Problem (VRP) and its variants---including capacitated
+VRP, VRP with time windows (VRPTW), pickup-and-delivery, and multi-depot
+VRP---serve as foundational abstractions for transportation systems. These
+problems often require constructing one or more tours that satisfy
+capacity and demand constraints while minimizing total travel cost.
+
+Neural solution approaches to routing tasks gained attention with pointer
+networks \cite{vinyals2015pointer} and later transformer-based solvers
+\cite{kool2019attention}. While these models excel on Euclidean routing
+benchmarks, they typically lack structural features needed in real
+logistics systems, such as flow conservation or facility-level
+constraints.
+
+\subsection{Middle-Mile and Last-Mile Logistics}
+
+Industrial routing systems for e-commerce and parcel delivery extend far
+beyond classical VRP. Middle-mile logistics connects fulfillment centers,
+sorting centers, and distribution nodes via scheduled or dynamically
+generated transportation links. Last-mile routing involves thousands of
+delivery units, complex timing constraints, and volatile demand patterns.
+
+Unlike classical routing benchmarks, real networks exhibit:
+
+\begin{itemize}
+    \item heterogeneous node types (e.g., FCs, SCs, DSs),
+    \item multi-commodity flows,
+    \item strict precedence and SLA constraints,
+    \item highly dynamic state (traffic, delays),
+    \item massive scale (orders of magnitude larger than VRP instances).
+\end{itemize}
+
+These factors make MILP formulations both expressive and indispensable,
+but also computationally challenging.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mixed-Integer Linear Programming (MILP)}
+
+MILPs provide a general modeling framework for routing and logistics
+problems. An MILP consists of a linear objective function and linear
+constraints, with some or all decision variables restricted to be
+integer-valued:
+
+\[
+\min_{x} \; c^\top x 
+\quad \text{s.t.} \quad 
+Ax \le b,\quad x \in \{0,1\}^n.
+\]
+
+Here, the matrix $A$ captures structural requirements such as flow
+conservation, capacity limits, time-window feasibility, and precedence
+relationships. The cost vector $c$ encodes objectives such as distance,
+delay penalties, or congestion costs.
+
+MILPs remain the gold standard for high-fidelity routing optimization
+\cite{wolsey1999integer,bertsimas1997introduction}. However, classical
+solvers face inherent challenges:
+
+\begin{itemize}
+    \item combinatorial explosion of the search space,
+    \item large branch-and-bound trees,
+    \item expensive cut generation,
+    \item unpredictable latency on real-world instances.
+\end{itemize}
+
+Even with decades of optimization research, large routing MILPs remain
+difficult to solve within tight operational time budgets.
+
+\subsection{Primal--Dual and Lagrangian Views}
+
+Many solver techniques rely on primal--dual reasoning, where violation
+signals $v = \max(0, Ax - b)$ and their dual multipliers inform branching,
+cutting, and heuristic decisions. Lagrangian relaxation provides an
+alternative view:
+
+\[
+\mathcal{L}(x, \lambda) = c^\top x + \lambda^\top (Ax - b),
+\]
+
+which leads to iterative updates resembling gradient ascent in the dual
+domain and heuristic search in the primal domain. These conceptual tools
+inspire several components of the MILP-Transformer introduced later.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Neural Combinatorial Optimization}
+
+Neural Combinatorial Optimization (Neural CO) seeks to approximate
+solutions to NP-hard problems through learned heuristics. Pointer
+networks \cite{vinyals2015pointer} were the first sequence models
+designed to construct combinatorial structures. Subsequent works used
+reinforcement learning \cite{bello2016neural,nazari2018reinforcement} and
+transformers \cite{kool2019attention} to improve generalization and
+construction quality.
+
+Despite strong empirical performance on benchmark tasks, Neural CO models
+face several limitations:
+
+\begin{itemize}
+    \item \textbf{Weak constraint handling:} They do not model MILP structure
+    explicitly, making feasibility brittle.
+    \item \textbf{Limited transferability:} They struggle to generalize across
+    network sizes, topologies, and constraint sets \cite{joshi2020learning}.
+    \item \textbf{Lack of interpretability:} Their internal states do not
+    correspond to optimization primitives such as dual variables.
+\end{itemize}
+
+These issues arise because Neural CO models primarily operate in the
+policy or sequence space rather than in the constraint space.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Deep Learning for MILPs (DL4MIP)}
+
+Recent work attempts to integrate learning directly into MILP pipelines.
+Examples include:
+
+\begin{itemize}
+    \item \textbf{Learning branching decisions}  
+    GNN-based models predict branching priorities in branch-and-bound
+    solvers, improving search efficiency
+    \cite{gasse2019exact,lodi2017learning}.
+    
+    \item \textbf{Learning warm-starts}  
+    Neural models predict feasible or near-feasible initial solutions
+    to reduce solver runtime \cite{nair2020solving}.
+    
+    \item \textbf{Differentiable optimization layers}  
+    OptNet \cite{amos2017optnet} and differentiable LP layers
+    \cite{poganvcic2020differentiable} enable embedding optimization
+    steps into neural architectures.
+    
+    \item \textbf{Implicit layers and differentiable solvers}  
+    Tools such as efficient implicit differentiation
+    \cite{blondel2022efficient} allow optimization routines to be treated
+    as differentiable implicit functions.
+\end{itemize}
+
+While powerful, these approaches usually require a classical solver for
+full resolution and do not generalize to large, highly structured routing
+instances without solver intervention.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Limitations of Current Approaches}
+
+The methods above reveal several fundamental barriers:
+
+\begin{itemize}
+    \item Classical MILPs are accurate but slow.
+    \item Neural CO is fast but fails under structural or distributional
+    shift.
+    \item Existing hybrid MILP-ML solutions depend heavily on solver
+    infrastructure.
+\end{itemize}
+
+This gap motivates the development of RFM: a fully neural,
+structure-aware surrogate solver that approximates MILP reasoning while
+remaining fast and generalizable.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Positioning RFM Within This Landscape}
+
+The Routing Foundation Model aims to unify three traditions:
+
+\begin{enumerate}
+    \item \textbf{MILP structure and primal--dual optimization}, providing
+    feasibility and interpretability.
+    
+    \item \textbf{Transformer architectures}, providing expressive,
+    scalable reasoning capabilities.
+    
+    \item \textbf{Generative and world-model approaches}, capturing the
+    distribution of routing configurations and multi-step dynamics.
+\end{enumerate}
+
+By embedding MILP structure directly into transformer computations, RFM
+seeks to inherit the strengths of both classical optimization and modern
+deep learning, enabling fast, feasible, and robust routing decisions at
+industrial scale.
+
+
+% your subsections remain unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Transformers Through the Lens of Optimization}
+\label{chap:transformers_opt}
+
+Transformers have emerged as the dominant architecture for sequence
+modeling, graph reasoning, and large-scale foundation models. While the
+standard view interprets transformers as powerful attention-based
+function approximators, recent theoretical work suggests that they can
+also be viewed through the lens of optimization dynamics. This chapter
+explores these connections and motivates their use as surrogate solvers
+for routing MILPs within the Routing Foundation Model (RFM).
+
+We examine five key perspectives:
+
+\begin{enumerate}
+    \item transformers as iterative computation graphs,
+    \item attention as a learned proximal or averaging operator,
+    \item residual blocks as approximate gradient or descent steps,
+    \item the transformer stack as an implicit equilibrium system,
+    \item dual interpretations of constraint signals in MILP-aware models.
+\end{enumerate}
+
+Together, these viewpoints reveal that transformers are not merely
+sequence models: they are expressive \emph{optimization engines} whose
+layers can approximate the iterative structure of classical
+primal--dual algorithms.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Transformers as Iterative Computation}
+
+Each transformer layer performs a structured computation:
+
+\[
+h^{(k+1)} = h^{(k)} + \mathrm{FFN}\!\Big( \mathrm{Attn}(h^{(k)}) \Big),
+\]
+
+which is a residual update on hidden states $h^{(k)}$. This resembles an
+iterative update of the form:
+
+\[
+x_{t+1} = x_t + g(x_t),
+\]
+
+common in optimization algorithms such as gradient descent, proximal
+methods, and fixed-point iterations. Deep networks with residual
+connections can be interpreted as unrolled optimization algorithms, with
+each layer performing a refinement step on internal state estimates.
+
+In the context of routing MILPs, hidden states can represent:
+\begin{itemize}
+    \item variable embeddings,
+    \item constraint embeddings,
+    \item dual violation signals,
+    \item latent representations of routing decisions.
+\end{itemize}
+
+This suggests that transformers can be trained to mimic optimization
+trajectories, leading naturally to surrogate solver behavior.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Attention as Proximal-Like Averaging}
+
+Self-attention computes:
+
+\[
+\mathrm{Attn}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d}}\right)V.
+\]
+
+This operator has two important optimization-related interpretations:
+
+\subsection*{1. A learned averaging / smoothing operator}
+
+The softmax normalizes weights into a probability simplex, producing a
+convex combination of values $V$. This resembles proximal or smoothing
+operations of the form:
+
+\[
+x_{t+1} = \sum_i \alpha_i x_i,
+\]
+
+where $\alpha$ belongs to a simplex constraint set. Such smoothing is key
+in many primal--dual and proximal splitting algorithms.
+
+\subsection*{2. A learned similarity metric}
+
+The dot-product attention score approximates:
+
+\[
+\langle \nabla \phi(x_i), \nabla \phi(x_j) \rangle,
+\]
+
+where $\phi$ is a learned embedding. This mirrors optimization methods
+that cluster or group variables based on gradient similarity or
+constraint structure.
+
+Under RFM, attention is modified to incorporate constraint violations,
+making it closer to dual-informed proximal operators.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Residual Blocks as Learned Descent Steps}
+
+A transformer layer can be decomposed as:
+
+\[
+h^{(k+1)} 
+= h^{(k)} 
++ \underbrace{f\big( h^{(k)} \big)}_{\text{descent-like update}},
+\]
+
+where $f$ represents attention + feedforward transformations. In
+optimization algorithms, many updates take the form:
+
+\[
+x_{t+1} = x_t - \eta \nabla_x \mathcal{L}(x_t),
+\]
+
+or more generally:
+
+\[
+x_{t+1} = x_t + \Delta_t,
+\]
+
+where $\Delta_t$ may incorporate projections, constraints, or Lagrangian
+terms.
+
+Transformers approximate such update rules with learned descent
+directions derived from:
+\begin{itemize}
+    \item pairwise relationships between variables,
+    \item constraint interactions,
+    \item dual signals or violation magnitudes,
+    \item global routing context.
+\end{itemize}
+
+This makes residual transformer blocks a natural fit for modeling
+iterative refinement in MILP surrogate solving.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implicit Layers and Deep Equilibrium Views}
+
+Transformers can also be viewed as solving for an implicit fixed point:
+
+\[
+h^* = h^* + f(h^*),
+\]
+
+or equivalently:
+
+\[
+f(h^*) = 0,
+\]
+
+which is characteristic of deep equilibrium (DEQ) models. Such implicit
+layers approximate solutions to nonlinear systems or optimality
+conditions \cite{blondel2022efficient}.
+
+Under this perspective:
+
+\begin{itemize}
+    \item the transformer stack approximates a converged optimizer,
+    \item training encourages layers to move toward a fixed point,
+    \item internal representations approximate primal--dual equilibria.
+\end{itemize}
+
+For routing MILPs, this implies that transformers can learn to
+approximate KKT-like stationary conditions over discrete variables when
+trained appropriately.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Dual Ascent Interpretation of Constraint Signals}
+
+In RFM, the MILP-Transformer module includes dual-informed features such
+as violation signals:
+
+\[
+v = \max(0, Ax - b),
+\]
+
+and their projected influence on variables:
+
+\[
+h = A^\top v.
+\]
+
+These resemble dual gradients in Lagrangian optimization:
+
+\[
+\lambda_{t+1} = \lambda_t + \alpha (Ax_t - b).
+\]
+
+When these signals are incorporated into attention heads, they modify the
+effective similarity metric and the resulting update direction. This
+produces layers that behave like:
+
+\begin{itemize}
+    \item learned dual ascent steps,
+    \item constraint-aware smoothing operators,
+    \item projections toward feasible regions.
+\end{itemize}
+
+This interpretation provides a foundational justification for embedding
+MILP structure directly into transformer computations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Implications for Neural MILP Surrogates}
+
+Viewing transformers through the optimization lens yields several
+insights that guide the architecture of RFM:
+
+\begin{itemize}
+    \item \textbf{Transformers naturally support iterative refinement.}  
+    Each layer resembles a descent step.
+
+    \item \textbf{Attention performs structured interactions.}  
+    These interactions can encode constraint structure when augmented
+    with MILP signals.
+
+    \item \textbf{Dual messages can be embedded directly into attention.}  
+    This connects neural reasoning to primal--dual MILP solvers.
+
+    \item \textbf{Implicit equilibrium views align with KKT conditions.}  
+    Transformers can approximate solutions in an amortized manner.
+\end{itemize}
+
+These insights form the conceptual basis of the MILP-Transformer
+architecture described in later chapters and motivate the broader design
+of the Routing Foundation Model.
+
+
+% content unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Problem Formulation: Routing MILPs at Scale}
+\label{chap:problem}
+
+Large-scale routing and logistics networks can be abstracted as
+directed graphs equipped with flow, timing, and capacity constraints.
+Industrial middle-mile and last-mile systems introduce additional
+structure such as heterogeneous facility types, precedence
+relationships, and tightly coupled operational constraints. This
+chapter formalizes these components and presents the mixed-integer
+linear programming (MILP) formulation that underlies the Routing
+Foundation Model (RFM).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Network Model and Decision Variables}
+
+Let the logistics network be represented as a directed graph:
+
+\[
+G = (V, E),
+\]
+
+where:
+
+\begin{itemize}
+    \item $V$ is the set of nodes (facilities such as FCs, SCs, DSs),
+    \item $E \subseteq V \times V$ is the set of feasible transportation arcs.
+\end{itemize}
+
+We consider two families of decision variables:
+
+\paragraph{Arc-activation variables.}
+For each arc $(i, j) \in E$, we define:
+
+\[
+x_{ij} \in \{0,1\},
+\]
+
+indicating whether a vehicle or shipment traverses the arc.
+
+\paragraph{Flow / load variables.}
+For each arc $(i,j)$:
+
+\[
+f_{ij} \ge 0,
+\]
+
+captures the quantity transported along that arc, e.g., package volume,
+weight, or number of containers.
+
+\paragraph{Timing variables.}
+For time-sensitive routing, we include:
+
+\[
+t_i \in \mathbb{R}_{\ge 0},
+\]
+
+representing arrival or processing time at facility $i$.
+
+\paragraph{Additional variables.}
+Depending on the operational model:
+
+\begin{itemize}
+    \item vehicle assignment variables,
+    \item service-level slack variables,
+    \item capacity utilization indicators,
+    \item route-length or deviation penalty terms.
+\end{itemize}
+
+These variables collectively encode the routing decisions needed for
+industrial-scale optimization.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Routing MILP: Full Formulation}
+
+A generic routing MILP for middle-mile or last-mile operations can be
+written as:
+
+\[
+\begin{aligned}
+\min_{x,f,t} &\quad \sum_{(i,j)\in E} c_{ij} x_{ij}
+    + \sum_{(i,j)\in E} \phi(f_{ij})
+    + \sum_{i\in V} \psi(t_i) \\
+\text{s.t.} 
+    &\quad \sum_{j : (i,j)\in E} x_{ij} = \sum_{k : (k,i)\in E} x_{ki}
+    && \forall i \in V  && \text{(flow conservation)} \\
+    &\quad f_{ij} \le u_{ij} x_{ij} && \forall (i,j) \in E && \text{(capacity)} \\
+    &\quad t_j \ge t_i + \tau_{ij} - M(1 - x_{ij})
+    && \forall (i,j) \in E && \text{(timing / precedence)} \\
+    &\quad x_{ij} \in \{0,1\},\; f_{ij} \ge 0,\; t_i \ge 0.
+\end{aligned}
+\]
+
+The terms $\phi(f_{ij})$ and $\psi(t_i)$ may encode penalty functions
+representing congestion, SLA slack, or lateness.
+
+The model captures the essential structure of routing optimization but
+may be extended with:
+
+\begin{itemize}
+    \item multi-commodity flows,
+    \item routing schedules or shifts,
+    \item limits on vehicle count,
+    \item stochastic or adversarial demand models.
+\end{itemize}
+
+Industrial MILPs often include thousands of constraints and tens of
+thousands of decision variables, making direct real-time optimization
+infeasible.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\texorpdfstring{Compact Form: $Ax \le b,\; x \in \{0,1\}^n$}{Compact Form: Ax <= b}}
+
+To facilitate analysis and integration with neural surrogate solvers, we
+express the routing MILP in compact matrix form:
+
+\[
+\min_x \; c^\top x 
+\quad \text{s.t.} \quad 
+Ax \le b,\;\; x \in \{0,1\}^n.
+\]
+
+Here:
+
+\begin{itemize}
+    \item $x \in \mathbb{R}^n$ concatenates all binary variables
+    (activation, routing, timing indicators),
+    \item $A$ encodes flow, precedence, capacity, and timing constraints,
+    \item $b$ represents right-hand-side capacities, times, and limits,
+    \item $c$ encodes routing costs, penalties, and other objectives.
+\end{itemize}
+
+This compact form is \emph{structurally expressive}: all relevant
+constraints can be embedded into a single linear system.
+
+It is also \emph{neural-friendly}: RFM uses this representation to
+construct variable embeddings, constraint embeddings, dual violation
+signals, and attention masks in the MILP-Transformer.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MILP as a Bipartite Interaction Graph}
+
+The constraint matrix $A$ defines a bipartite graph between:
+
+\[
+\text{constraints} \quad \leftrightarrow \quad \text{variables},
+\]
+
+where:
+
+\begin{itemize}
+    \item each row of $A$ corresponds to a constraint node,
+    \item each column corresponds to a variable node,
+    \item edges encode nonzero coefficients.
+\end{itemize}
+
+This view is useful because:
+
+\begin{itemize}
+    \item many optimization algorithms propagate messages along this graph,
+    \item GNNs can approximate primal–dual propagation,
+    \item transformers can encode variable–constraint relationships
+    through attention heads.
+\end{itemize}
+
+RFM directly leverages this factor-graph perspective by embedding both
+constraint nodes and variable nodes, enabling dual-informed attention.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scalability and Operational Requirements}
+
+Real industrial MILPs introduce several scalability challenges:
+
+\paragraph{High dimensionality.}
+Middle-mile networks may contain:
+
+\begin{itemize}
+    \item 10,000+ arcs,
+    \item 100,000+ binary decision variables,
+    \item thousands of constraints related to flow, timing, and capacity.
+\end{itemize}
+
+\paragraph{Operational latency.}
+Re-optimizing every few seconds requires near-instant inference.
+Classical solvers often exceed allowable runtimes.
+
+\paragraph{Generalization.}
+Routing networks evolve:
+
+\begin{itemize}
+    \item new facilities open,
+    \item new restrictions appear,
+    \item seasonal changes shift demand,
+    \item disruptions modify topology.
+\end{itemize}
+
+Models must generalize to unseen instances without retraining.
+
+\paragraph{Feasibility reliability.}
+Neural CO models often produce infeasible solutions when constraints
+tighten. RFM counters this by:
+
+\begin{itemize}
+    \item encoding constraints explicitly,
+    \item incorporating violation signals $v = \max(0, Ax - b)$,
+    \item introducing constraint-aware Mixture-of-Experts,
+    \item refining solutions through latent proximal steps.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+This chapter established the mathematical structure of routing MILPs and
+highlighted the scale, constraints, and complexity that make industrial
+routing difficult. These formulations motivate the need for a neural
+surrogate solver capable of:
+
+\begin{itemize}
+    \item representing MILP structure,
+    \item processing large, heterogeneous networks,
+    \item approximating primal–dual reasoning,
+    \item producing fast, feasible solutions.
+\end{itemize}
+
+The next chapter introduces the Routing Foundation Model (RFM) and its
+component architectures designed to address these challenges.
+
+% rest unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Routing Foundation Model (RFM): Architecture}
+\label{chap:rfm}
+
+The Routing Foundation Model (RFM) is designed as a unified neural
+architecture that integrates classical optimization structure with
+modern deep learning components to enable fast, feasible, 
+generalizable routing decisions at scale. RFM combines 
+MILP-aware encoders, a transformer-based surrogate solver, 
+constraint-specialized Mixture-of-Experts (MoE), diffusion priors, 
+and world-modeling components. Together, these elements form 
+a coherent system capable of approximating primal--dual optimization, 
+capturing distributions over routing decisions, and reasoning about 
+multi-step network dynamics.
+
+This chapter presents the overall architectural design, its guiding 
+principles, and the interactions between components.
+
+
+\begin{figure}[H]
+\centering
+\scalebox{0.9}{
+\begin{tikzpicture}[node distance=1.4cm]
+
+\node[io] (milp) {
+    \textbf{Routing MILP} \\[-2pt]
+    $(A,b,c)$
+};
+
+\node[io, below=0.6cm of milp] (graph) {
+    \textbf{Network Graph} \\[-2pt]
+    $G$ (nodes, arcs)
+};
+
+\node[io, below=0.6cm of graph] (hist) {
+    \textbf{Historical State} \\[-2pt]
+    congestion / demand
+};
+
+\node[module, right=3cm of graph] (enc) {
+    \textbf{MILP-Aware Encoder} \\[-2pt]
+    variable/constraint/graph embeddings
+};
+
+\draw[arrow] (milp.east) -- (enc.west);
+\draw[arrow] (graph.east) -- (enc.west);
+\draw[arrow] (hist.east) -- (enc.west);
+
+\end{tikzpicture}
+}
+\caption{Input components of the Routing Foundation Model (RFM) and the MILP-aware encoder.}
+\label{fig:rfm_inputs}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\scalebox{0.9}{
+\begin{tikzpicture}[node distance=1.4cm]
+
+% Big core container
+\node[module, minimum width=7cm, minimum height=4cm] (core) {};
+
+% Title on top of the core box
+\node[font=\bfseries\small, anchor=south] at (core.north) {Routing Foundation Model (RFM) Core};
+
+% Submodules placed relative to core.center (no fancy interpolation)
+\node[smallmodule] (milpt) at ($(core.center)+(-2.0,0.8)$) {
+    MILP-Transformer \\[-2pt]
+    (surrogate solver)
+};
+
+\node[smallmodule] (nrom) at ($(core.center)+(2.0,0.8)$) {
+    NROM \\[-2pt]
+    Neural Routing Model
+};
+
+\node[smallmodule] (diff) at ($(core.center)+(-2.0,-0.8)$) {
+    Diffusion Prior \\[-2pt]
+    generative routing prior
+};
+
+\node[smallmodule] (wm) at ($(core.center)+(2.0,-0.8)$) {
+    World Model \\[-2pt]
+    (SSM / Mamba)
+};
+
+% Internal arrows (simple and safe)
+\draw[arrow] (diff.north) -- (milpt.south);
+\draw[arrow] (wm.north) -- (nrom.south);
+
+\end{tikzpicture}
+}
+\caption{Core components of RFM: MILP-Transformer, NROM, diffusion prior, and world model.}
+\label{fig:rfm_core}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\scalebox{0.9}{
+\begin{tikzpicture}[node distance=1.4cm]
+
+\node[module] (core) {
+    \textbf{RFM Core Output} \\[-2pt]
+    latent routing decisions
+};
+
+\node[io, right=2.8cm of core] (plan) {
+    \textbf{Routing Plan} \\[-2pt] $x$
+};
+
+\node[io, below=0.8cm of plan] (solver) {
+    \textbf{MILP Solver} \\[-2pt] warm-started
+};
+
+\node[io, right=2.3cm of plan] (env) {
+    \textbf{Logistics Environment} \\[-1pt]
+    execution + feedback
+};
+
+\draw[arrow] (core.east) -- (plan.west);
+\draw[arrow] (plan.south) -- (solver.north);
+\draw[arrow] (plan.east) -- (env.west);
+
+\draw[dashedarrow] (env.south) |- (core.south);
+
+\end{tikzpicture}
+}
+\caption{RFM output routing plans, solver warm-starting, and environment feedback loop.}
+\label{fig:rfm_outputs}
+\end{figure}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Design Principles}
+
+RFM is guided by five central principles:
+
+\paragraph{1. Structural awareness.}
+The architecture encodes MILP structure directly through variable and 
+constraint embeddings, enabling the model to operate in the same 
+algebraic domain as classical solvers.
+
+\paragraph{2. Optimization-inspired computation.}
+Transformer blocks are interpreted as iterative optimization layers 
+that refine routing decisions via dual-informed updates, proximal-like 
+refinements, and constraint-aware attention mechanisms.
+
+\paragraph{3. Feasibility preservation.}
+Dual violation signals, constraint MoE modules, and latent refinement 
+loops ensure solutions remain close to feasibility during inference.
+
+\paragraph{4. Generalization across networks.}
+RFM is designed to transfer across different network topologies, 
+facility configurations, and constraint families by learning in the 
+space of MILP structure rather than raw sequences.
+
+\paragraph{5. Multi-modal modeling of routing decisions.}
+Diffusion priors and world models capture stochasticity, distributional 
+uncertainty, and multi-step dynamics in routing systems.
+
+These principles collectively define a foundation model for routing 
+that operates beyond single-instance heuristics.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Core Components of RFM}
+
+The RFM architecture consists of five interconnected modules:
+
+\begin{enumerate}
+    \item MILP-aware encoder for variables and constraints,
+    \item MILP-Transformer surrogate solver,
+    \item Neural Routing Optimization Model (NROM),
+    \item Diffusion routing prior,
+    \item Routing world model.
+\end{enumerate}
+
+We describe each component in detail.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MILP-Aware Encoder}
+
+The encoder transforms the compact MILP representation into learned
+embeddings usable by transformers and diffusion models. Given:
+
+\[
+\min_x c^\top x 
+\quad \text{s.t.} \quad 
+Ax \le b,\;\; x \in \{0,1\}^n,
+\]
+
+the encoder constructs:
+
+\begin{itemize}
+    \item \textbf{Variable embeddings}  
+    Each variable $x_i$ has an embedding $v_i$ derived from:
+    \begin{itemize}
+        \item cost coefficient $c_i$,
+        \item entries $(A_{:,i})$ showing its involvement in constraints,
+        \item graph features from the underlying routing network,
+        \item type indicators (arc variable, slack variable, timing var).
+    \end{itemize}
+    
+    \item \textbf{Constraint embeddings}  
+    For each constraint row $A_j$, an embedding $u_j$ incorporates:
+    \begin{itemize}
+        \item its right-hand side $b_j$,
+        \item coefficients $\{A_{j,i}\}$,
+        \item semantic type (flow, capacity, timing, coupling).
+    \end{itemize}
+    
+    \item \textbf{Dual violation signals}  
+    During inference, RFM computes:
+    \[
+    v = \max(0, Ax - b),
+    \]
+    which becomes an additional feature injected into attention heads.
+\end{itemize}
+
+Together, these embeddings provide a structured view of the MILP to the
+downstream components.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MILP-Transformer: Surrogate Solver Core}
+
+The MILP-Transformer is the iterative reasoning engine of RFM.
+It transforms embeddings using multi-head attention modified to:
+
+\begin{itemize}
+    \item incorporate dual signals $A^\top v$,
+    \item account for constraint--variable interactions,
+    \item refine binary decisions through soft relaxation.
+\end{itemize}
+
+A single block updates $x$ via:
+
+\[
+x^{(t+1)} = \mathrm{Refine}\!\left(
+    \mathrm{MILPAttn}\!\big(x^{(t)}, A^\top v^{(t)}\big)
+\right),
+\]
+
+where:
+
+\begin{itemize}
+    \item $\mathrm{MILPAttn}$ is attention augmented with MILP structure,
+    \item $v^{(t)} = \max(0, A x^{(t)} - b)$ represents constraint violations,
+    \item $\mathrm{Refine}$ performs a latent proximal-like update 
+          pushing variables toward feasibility or integrality.
+\end{itemize}
+
+Multiple layers approximate an unrolled primal--dual optimization
+trajectory. The transformer is not solving the MILP exactly but
+providing an amortized, differentiable surrogate solver.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Constraint-Specialized Mixture-of-Experts}
+
+Constraints in routing MILPs fall into families:
+
+\begin{itemize}
+    \item flow conservation constraints,
+    \item capacity constraints,
+    \item timing/precedence constraints,
+    \item vehicle or facility assignment constraints,
+    \item logical or binary coupling constraints.
+\end{itemize}
+
+RFM introduces a constraint-specialized MoE module:
+
+\[
+\Phi = \mathrm{MoE}(v),
+\]
+
+where each expert specializes in a constraint family. During routing
+scenarios, different constraints dominate feasibility, enabling the MoE
+to modulate update directions based on which violations are most
+relevant.
+
+This enhances robustness and scalability to heterogeneous networks.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Neural Routing Optimization Model (NROM)}
+
+Where the MILP-Transformer performs local refinement, the NROM module
+provides global reasoning. It integrates:
+
+\begin{itemize}
+    \item graph structure of the routing network,
+    \item constraint embeddings from the MILP-aware encoder,
+    \item variable embeddings from the surrogate solver.
+\end{itemize}
+
+NROM uses graph attention and transformer layers to reason about:
+
+\begin{itemize}
+    \item global connectivity,
+    \item sequencing of routes,
+    \item multi-arc dependencies,
+    \item interactions between different facility types.
+\end{itemize}
+
+The output is a structured routing solution or a high-quality 
+initialization for the MILP-Transformer refinement stage.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Diffusion Routing Prior}
+
+Routing decisions do not arise from a unimodal distribution. Industrial
+routing systems exhibit multiple feasible modes corresponding to
+different:
+
+\begin{itemize}
+    \item route structures,
+    \item facility congestion patterns,
+    \item load-balancing strategies,
+    \item fallback or contingency plans.
+\end{itemize}
+
+RFM incorporates a diffusion prior \cite{nichol2021improved,hoogeboom2021autoregressive}
+over routing variables. In latent space:
+
+\[
+z_0 \sim p_{\theta}(z_0) \quad \text{via diffusion sampling},
+\]
+
+followed by decoding:
+
+\[
+x = \mathrm{Decode}(z_0).
+\]
+
+The diffusion prior serves three purposes:
+
+\begin{enumerate}
+    \item generate diverse feasible initializations,
+    \item smooth the optimization landscape,
+    \item regularize the MILP-Transformer refinement.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Routing World Model}
+
+In dynamic routing environments, decisions must anticipate future
+conditions such as congestion, delays, or demand surges. RFM integrates
+a world model \cite{ha2018worldmodels,hafner2019planet} that predicts
+plausible future states of the logistics network:
+
+\[
+s_{t+1} = f_\theta(s_t, x_t).
+\]
+
+The world model enables:
+
+\begin{itemize}
+    \item multi-step planning,
+    \item simulation rollouts,
+    \item cost-to-go prediction,
+    \item sensitivity analysis of routing decisions.
+\end{itemize}
+
+RFM can therefore operate both as a one-shot surrogate solver and as a
+sequential decision-making system.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data Flow and Inference Pipeline}
+
+At inference time, RFM performs the following steps:
+
+\begin{enumerate}
+    \item Encode MILP structure $(A, b, c)$ into variable and constraint embeddings.
+    \item Sample or retrieve an initialization (from NROM or the diffusion prior).
+    \item Execute MILP-Transformer layers to iteratively refine the solution.
+    \item Use constraint MoE modules to modulate updates based on violation types.
+    \item Optionally, perform rollouts using the world model for dynamic optimization.
+    \item Output a binary routing decision vector $\hat{x}$.
+\end{enumerate}
+
+This pipeline mimics classical optimization while remaining fully
+differentiable and computationally efficient at scale.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Relation to Classical Solvers and DL4MIP}
+
+RFM integrates concepts from:
+
+\begin{itemize}
+    \item primal--dual solvers (dual violation messages $A^\top v$),
+    \item cutting-plane heuristics (constraint experts),
+    \item proximal and projection methods (latent refinement),
+    \item implicit differentiation and differentiable solvers,
+    \item Neural CO and diffusion modeling.
+\end{itemize}
+
+Unlike classical solvers, RFM amortizes computation across instances,
+making real-time routing feasible.
+
+Unlike pure neural heuristics, RFM respects MILP structure, enabling far
+stronger generalization and feasibility.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+The Routing Foundation Model is a fully neural optimization system that:
+
+\begin{itemize}
+    \item embeds MILP structure,
+    \item approximates primal--dual optimization,
+    \item generates diverse routing solutions via diffusion modeling,
+    \item reasons about multi-step dynamics via world models,
+    \item scales to industrial networks while maintaining feasibility.
+\end{itemize}
+
+The next chapter presents the MILP-Transformer module in depth, detailing 
+its architecture, dual-informed attention, proximal refinement, and 
+surrogate solver behavior.
+
+% unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component I: MILP-Transformer}
+\label{chap:milp_transformer}
+
+The MILP-Transformer is the core reasoning engine of the Routing
+Foundation Model (RFM). It performs iterative refinement of routing
+decisions using transformer layers augmented with MILP structure, dual
+signals, and proximal-like updates. Whereas the Neural Routing
+Optimization Model (NROM) provides global structure and initial routing
+assignments, the MILP-Transformer acts as a learned surrogate solver,
+approximating primal--dual optimization trajectories through a sequence
+of differentiable updates.
+
+This chapter introduces the mathematical formulation, architectural
+design, constraint-aware mechanisms, and pseudocode of the MILP-Transformer.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivation}
+
+Classical MILP solvers rely heavily on:
+\begin{itemize}
+    \item primal heuristics,
+    \item dual bound propagation,
+    \item constraint violation signals,
+    \item iterative updates that move toward feasibility and improved cost.
+\end{itemize}
+
+Neural CO methods, while flexible, do not incorporate these structural
+signals directly. The MILP-Transformer bridges this gap by embedding MILP
+structure into transformer layers, allowing gradient-based models to
+perform optimization-like updates in the latent space.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Soft Integer Relaxation}
+
+Routing decisions $x \in \{0,1\}^n$ are first relaxed to continuous
+values:
+
+\[
+x^{(0)} = \sigma(\ell / \tau),
+\]
+
+where:
+\begin{itemize}
+    \item $\ell$ are learnable logits,
+    \item $\sigma$ is a sigmoid activation,
+    \item $\tau$ is a temperature controlling softness.
+\end{itemize}
+
+This produces a differentiable surrogate for binary decisions:
+
+\[
+x \in [0,1]^n.
+\]
+
+The role of the MILP-Transformer is to iteratively push these continuous
+values toward feasible, near-integral solutions.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Constraint Violations and Dual Signals}
+
+Given the compact MILP:
+
+\[
+Ax \le b,
+\qquad
+x \in \{0,1\}^n,
+\]
+
+we compute the violation vector:
+
+\[
+v = \max(0, Ax - b),
+\]
+
+which encodes the magnitude of constraint dissatisfaction.
+
+The dual-inspired message is:
+
+\[
+h = A^\top v,
+\]
+
+analogous to a gradient with respect to primal variables in the
+Lagrangian:
+
+\[
+\mathcal{L}(x,\lambda) = c^\top x + \lambda^\top (Ax - b).
+\]
+
+This $h$ signal informs the MILP-Transformer which variables most
+contribute to constraint violations and should be adjusted.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MILP-Aware Attention}
+
+Standard transformer attention computes:
+
+\[
+\mathrm{Attn}(Q,K,V)
+= \mathrm{softmax}\!\left( \frac{QK^\top}{\sqrt{d}} \right) V.
+\]
+
+For MILP-aware attention, the keys and queries are modified to include
+dual signals and constraint embeddings:
+
+\[
+Q = W_Q [x^{(t)} ; h], \qquad 
+K = W_K [x^{(t)} ; u], \qquad
+V = W_V x^{(t)},
+\]
+
+where:
+\begin{itemize}
+    \item $u$ is the constraint embedding from the MILP-aware encoder,
+    \item $h$ represents $A^\top v$,
+    \item $[\,\cdot\,;\,\cdot\,]$ denotes concatenation.
+\end{itemize}
+
+This modification allows attention to focus on variables most implicated
+in current constraint violations. Multi-head attention captures
+interactions between different constraint families (flow, capacity,
+timing, coupling).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Constraint Mixture-of-Experts (MoE)}
+
+Constraints in routing MILPs vary widely in structure and functional
+role. To handle this heterogeneity, the MILP-Transformer uses a
+Mixture-of-Experts gated by violation signals:
+
+\[
+\Phi = \mathrm{MoE}(v),
+\]
+
+where experts specialize in:
+\begin{itemize}
+    \item flow constraints,
+    \item capacity constraints,
+    \item timing or precedence constraints,
+    \item logical / binary consistency constraints.
+\end{itemize}
+
+The gating mechanism ensures that:
+\begin{itemize}
+    \item only relevant experts activate for a given violation pattern,
+    \item updates are constraint-specific,
+    \item training is modular and scalable.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Latent Gradient / Proximal Refinement}
+
+Following MILP-aware attention and MoE updates, the model computes an
+approximate optimization step:
+
+\[
+\mathcal{L} = c^\top x + \Phi,
+\]
+
+\[
+g = \nabla_x \mathcal{L}.
+\]
+
+A refinement operator updates the relaxed binary vector:
+
+\[
+x^{(t+1)} = \mathrm{Refine}\!\left( x^{(t)}, g \right),
+\]
+
+where $\mathrm{Refine}$ may include:
+
+\begin{itemize}
+    \item projected gradient descent toward $[0,1]^n$,
+    \item proximal steps encouraging integrality,
+    \item smoothing to avoid oscillations,
+    \item constraint-aware projection based on violation statistics.
+\end{itemize}
+
+This update mimics steps performed by primal heuristics or projected
+dual methods in classical MILP solvers.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Overall Forward Pass}
+
+A full MILP-Transformer layer performs:
+
+\[
+x^{(t+1)} =
+\mathrm{Refine}\!\left(
+    \mathrm{MILPAttn}(x^{(t)}, A^\top v^{(t)}),
+    \nabla_x \mathcal{L}(x^{(t)})
+\right).
+\]
+
+Stacking $T$ layers yields a refined solution approaching feasibility and
+near-integrality.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Pseudocode}
+
+\begin{algorithm}[h]
+\caption{MILP-Transformer Surrogate Solver}
+\label{alg:milp_transformer}
+\begin{algorithmic}[1]
+\STATE \textbf{Input:} MILP $(A,b,c)$
+\STATE Initialize logits $\ell$
+\STATE $x \leftarrow \sigma(\ell / \tau)$
+\FOR{$t = 1$ to $T$}
+    \STATE $v \leftarrow \max(0, A x - b)$
+    \STATE $h \leftarrow A^\top v$
+    \STATE $x \leftarrow \mathrm{MILPAttn}(x, h)$
+    \STATE $\Phi \leftarrow \mathrm{MoE}(v)$
+    \STATE $\mathcal{L} \leftarrow c^\top x + \Phi$
+    \STATE $g \leftarrow \nabla_x \mathcal{L}$
+    \STATE $x \leftarrow \mathrm{Refine}(x, g)$
+\ENDFOR
+\STATE \textbf{Return:} $x$ (optionally discretized)
+\end{algorithmic}
+\end{algorithm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interpretation as an Optimization Algorithm}
+
+The MILP-Transformer approximates:
+
+\begin{itemize}
+    \item primal descent (via refinement),
+    \item dual ascent (via $A^\top v$),
+    \item constraint filtering (via MoE),
+    \item proximal regularization (via soft relaxation),
+    \item iterative convergence (via stacked layers).
+\end{itemize}
+
+Thus, it behaves like a learned unrolled solver specialized for routing
+constraints, with dramatically lower inference cost than classical MILP
+solvers.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+The MILP-Transformer is a differentiable, optimization-inspired neural
+surrogate solver capable of:
+
+\begin{itemize}
+    \item encoding constraint violations,
+    \item performing dual-informed attention,
+    \item applying constraint-specific expert reasoning,
+    \item refining routing decisions via proximal updates,
+    \item approaching feasible binary solutions.
+\end{itemize}
+
+The next chapter introduces Component II: the Neural Routing Optimization
+Model (NROM), which provides global structural reasoning and integrates
+with the MILP-Transformer to form the complete Routing Foundation Model.
+
+
+% includes your algorithm unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component II: Neural Routing Optimization Model (NROM)}
+\label{chap:nrom}
+
+The Neural Routing Optimization Model (NROM) provides the global
+reasoning component of the Routing Foundation Model (RFM). Whereas the
+MILP-Transformer focuses on local constraint satisfaction and
+primal--dual refinement, NROM captures the global structure of routing
+problems, the geometry of the underlying logistics network, and the
+high-level interactions between routes, facilities, and constraints.
+
+NROM acts as a structured encoder--decoder system that generates
+high-quality routing assignments, initializes the MILP-Transformer, and
+supplies global contextual signals about the network. This chapter
+formalizes the NROM architecture and its role within RFM.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivation}
+
+Classical MILP formulations represent routing decisions in algebraic
+form, but the underlying logistics network has rich combinatorial
+structure:
+\begin{itemize}
+    \item graph connectivity between facilities,
+    \item vehicle flow patterns,
+    \item precedence and timing dependencies,
+    \item global load-balancing relationships.
+\end{itemize}
+
+The MILP-Transformer alone cannot capture this global geometry because
+its refinement steps operate primarily in variable space. NROM provides:
+\begin{enumerate}
+    \item structural embeddings of the routing network,
+    \item high-level reasoning over multi-hop dependencies,
+    \item initialization of the relaxed binary vector $x$,
+    \item integration of network topology with MILP structure.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Formal Definition}
+
+Given a routing network represented as a directed graph:
+
+\[
+G = (V, E),
+\]
+
+with associated features:
+\begin{itemize}
+    \item node types (FC, SC, DS, hubs),
+    \item arc costs, capacities, or distances,
+    \item timing windows or precedence relations,
+\end{itemize}
+
+the NROM computes:
+
+\[
+z = \mathrm{Encode}(G, A, b, c),
+\]
+
+and predicts an initial relaxed routing vector:
+
+\[
+x^{(0)} = \mathrm{Decode}(z).
+\]
+
+This vector is fed into the MILP-Transformer for constraint-aware
+refinement.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Variable and Constraint Embeddings}
+
+NROM reuses and extends embeddings from the MILP-aware encoder to
+produce a unified latent representation.
+
+\paragraph{Variable embeddings.}
+For each MILP variable $x_i$ corresponding to an arc or decision:
+
+\[
+e_i = f_\theta(c_i, A_{:,i}, \text{node features}, \text{arc features}).
+\]
+
+These embeddings reflect:
+\begin{itemize}
+    \item cost contributions,
+    \item constraint participation,
+    \item network semantics (e.g., FC→SC vs DS→customer arcs),
+    \item geometric attributes (distance, travel time).
+\end{itemize}
+
+\paragraph{Constraint embeddings.}
+For each constraint row:
+
+\[
+u_j = g_\theta(b_j, A_{j,:}, \text{constraint type}).
+\]
+
+These embeddings encode:
+\begin{itemize}
+    \item flow conservation structure,
+    \item capacity and timing rules,
+    \item MILP families relevant to routing.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Graph / Sequence Views of Routing Decisions}
+
+Routing decisions can be represented in multiple views:
+
+\paragraph{Graph view.}
+RFM treats $x$ as a subset of edges in $G$ defining paths, tours, or
+flows. NROM uses graph neural networks (GNNs) or Graphormer-style
+transformers \cite{ying2021transformers} to propagate structural
+information across the network.
+
+\paragraph{Sequence view.}
+For problems like TSP, VRP, or courier routes, decisions correspond to
+ordered sequences. NROM may adopt autoregressive or pointer-network
+decoders \cite{vinyals2015pointer, bello2017neural} in addition to graph
+layers.
+
+\paragraph{Hybrid view.}
+Industrial routing often requires both:
+\begin{itemize}
+    \item global graph reasoning (capacities, connectivity),
+    \item local sequencing (within a vehicle route).
+\end{itemize}
+
+NROM integrates both through multi-view encoders.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Message Passing and Attention Mechanisms}
+
+NROM aggregates global information using graph attention:
+
+\[
+h_v^{(t+1)} = 
+\mathrm{Attn}\!\left(
+    h_v^{(t)}, 
+    \{h_u^{(t)} : u \in \mathcal{N}(v)\}
+\right),
+\]
+
+where $h_v$ are node embeddings and $\mathcal{N}(v)$ are neighbors.
+
+Similarly, variable embeddings $e_i$ (corresponding to arcs $(u,v)$)
+participate in structured attention:
+
+\[
+e_i^{(t+1)}
+= \mathrm{GraphAttn}\big(e_i^{(t)}, h_u^{(t)}, h_v^{(t)}\big).
+\]
+
+This ensures that routing decisions incorporate network geometry,
+congestion, and multi-hop dependencies.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Decoder: Generating Initial Routing Assignments}
+
+After global reasoning, NROM generates an initial relaxed solution:
+
+\[
+x^{(0)} = \sigma(W e),
+\]
+
+where $e$ are the refined variable embeddings. The decoder may also
+produce:
+\begin{itemize}
+    \item route orderings (via autoregressive decoding),
+    \item vehicle-load predictions,
+    \item timing feasibility predictions.
+\end{itemize}
+
+This initial solution serves two purposes:
+\begin{enumerate}
+    \item it reduces the search space for the MILP-Transformer,
+    \item it produces high-quality warm starts analogous to MILP heuristics.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Training Objectives}
+
+NROM is trained jointly with the MILP-Transformer using a mixture of
+objectives:
+
+\paragraph{1. Feasibility loss.}
+Given ground-truth feasible solutions $x^\star$:
+
+\[
+\mathcal{L}_{\text{feas}} = \| Ax^{(0)} - b \|_+.
+\]
+
+\paragraph{2. Cost loss.}
+
+\[
+\mathcal{L}_{\text{cost}} = c^\top x^{(0)}.
+\]
+
+\paragraph{3. Structural reconstruction loss.}
+Predicting arc usage or flow patterns from ground truth.
+
+\paragraph{4. Diffusion-prior consistency.}
+Matching statistics from the diffusion routing prior
+\cite{nichol2021improved,hoogeboom2021autoregressive}.
+
+\paragraph{5. Auxiliary world-model alignment.}
+Aligning initial routing decisions with world-model forecast dynamics
+\cite{ha2018worldmodels, hafner2019planet}.
+
+These multi-objective losses shape NROM into a globally aware routing
+initializer.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interaction with the MILP-Transformer}
+
+\begin{enumerate}
+    \item NROM computes global features and produces $x^{(0)}$.
+    \item The MILP-Transformer performs local refinement:
+    \[
+    x^{(T)} = \mathrm{MILPTransformer}(x^{(0)}, A, b, c).
+    \]
+    \item NROM may provide structural feedback during refinement,
+          such as updated graph embeddings or congestion predictions.
+\end{enumerate}
+
+The two components operate analogously to:
+\begin{itemize}
+    \item a global heuristic (NROM),
+    \item followed by a local primal--dual solver (MILP-Transformer).
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+NROM provides the global structure and high-level reasoning necessary
+for large-scale routing optimization. Its integration of graph
+representations, MILP embeddings, and multi-view attention enables it to:
+
+\begin{itemize}
+    \item encode complex logistics networks,
+    \item generate high-quality initial routing assignments,
+    \item support refinement by the MILP-Transformer,
+    \item generalize across network sizes and topologies.
+\end{itemize}
+
+NROM and the MILP-Transformer together form the core of the Routing
+Foundation Model.
+
+The next chapter introduces diffusion priors for routing, which allow
+RFM to model distributional uncertainty, generate diverse feasible
+solutions, and regularize optimization trajectories.
+
+
+% unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component III: Diffusion Priors for Routing}
+\label{chap:diffusion}
+
+Routing problems exhibit inherently multi-modal decision landscapes:
+multiple distinct route structures, assignment patterns, and load
+balancing strategies may all produce feasible and near-optimal
+solutions. Classical MILP solvers approximate this landscape with
+branch-and-bound search, while neural methods often collapse to a single
+mode. Diffusion models provide a principled generative framework capable
+of modeling diverse routing solutions and serving as a learned prior
+over the decision space.
+
+This chapter introduces diffusion priors for routing, describes their
+integration with the Routing Foundation Model (RFM), and explains how
+they improve feasibility, generalization, and robustness.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivation}
+
+Unlike smooth continuous spaces, the routing solution space is:
+\begin{itemize}
+    \item \textbf{highly discrete} (binary MILP variables),
+    \item \textbf{combinatorial} (solution space scales exponentially),
+    \item \textbf{multi-modal} (many equally good or feasible routes),
+    \item \textbf{sensitive to global structure} (graph connectivity, timing),
+    \item \textbf{irregular} (constraints vary significantly by facility type).
+\end{itemize}
+
+A generative prior is desirable because it can:
+\begin{enumerate}
+    \item provide diverse initializations for the MILP-Transformer,
+    \item capture global structural invariances (e.g., route symmetries),
+    \item improve robustness to novel topologies,
+    \item regularize optimization to avoid poor local minima,
+    \item align training with distributions of real logistics networks.
+\end{enumerate}
+
+Diffusion models \cite{nichol2021improved, hoogeboom2021autoregressive}
+satisfy these requirements and extend naturally to both continuous and
+discrete routing settings.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Latent Representations for Routing}
+
+Let $x \in \{0,1\}^n$ denote routing decisions. These variables are
+embedded into a continuous latent representation $z$:
+
+\[
+z = f_\theta(x),
+\]
+
+where $f_\theta$ is an encoder such as a learnable linear map, an MLP,
+or a graph encoder conditioned on network topology.
+
+The diffusion process acts in latent space:
+
+\[
+z_0 \in \mathcal{Z}, \qquad 
+x = f_\theta^{-1}(z_0),
+\]
+
+because:
+\begin{itemize}
+    \item continuous diffusion is stable and well-understood,
+    \item latent structure can encode combinatorial geometry,
+    \item decoding enables feasibility-oriented reconstruction.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Forward Diffusion Process}
+
+The forward diffusion process gradually corrupts the latent routing
+vector $z_0$:
+
+\[
+q(z_t \mid z_{t-1}) 
+= \mathcal{N}\!\left(
+    \sqrt{\alpha_t}\, z_{t-1},\; (1 - \alpha_t) I
+  \right),
+\]
+
+or in the simplified DDPM formulation:
+
+\[
+z_t = \sqrt{\bar{\alpha}_t} \, z_0 
+    + \sqrt{1 - \bar{\alpha}_t} \, \epsilon,
+\qquad
+\epsilon \sim \mathcal{N}(0, I),
+\]
+
+with a variance schedule following \cite{nichol2021improved}.
+
+In discrete variants (binary or categorical variables), we may use:
+\begin{itemize}
+    \item mask-based corruption,
+    \item bit-flip diffusion,
+    \item discrete autoregressive diffusion \cite{hoogeboom2021autoregressive}.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reverse Diffusion and Routing Priors}
+
+The reverse diffusion model learns:
+
+\[
+p_\theta(z_{t-1} \mid z_t),
+\]
+
+parameterized by a neural network (typically a transformer or graph
+network).
+
+At inference, sampling proceeds backward:
+
+\[
+z_{t-1} = g_\theta(z_t, t),
+\]
+
+until we produce a clean latent:
+
+\[
+z_0 = g_\theta(z_1, 1).
+\]
+
+The routing solution is then decoded:
+
+\[
+x = \mathrm{Decode}(z_0),
+\]
+
+and optionally refined using the MILP-Transformer.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conditioning Diffusion on MILP Constraints}
+
+Unconditional generation may produce infeasible or irrelevant routes.
+Therefore, the diffusion prior is conditioned on MILP structure:
+
+\[
+p_\theta(z_{t-1} \mid z_t, A, b, c).
+\]
+
+Conditioning may include:
+\begin{itemize}
+    \item constraint embeddings $u_j$,
+    \item dual violation signals $A^\top v$,
+    \item cost vector $c$,
+    \item node and arc features,
+    \item NROM-provided global representations.
+\end{itemize}
+
+This transforms the diffusion process into a structured prior aligned
+with routing MILPs.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Feasibility-Aware Denoising}
+
+During reverse diffusion, the denoising network may incorporate
+feasibility projections:
+
+\[
+z_{t-1} = g_\theta(z_t, t) 
+          - \eta_t \nabla_z \| Ax - b \|_+,
+\]
+
+where $x = \mathrm{Decode}(z_{t-1})$.
+
+This introduces:
+\begin{itemize}
+    \item constraint biasing,
+    \item soft feasibility enforcement,
+    \item implicit primal--dual reasoning,
+    \item gradient-like corrections to latent space.
+\end{itemize}
+
+Such feasibility-aware diffusion blends generative modeling with
+classical constraint satisfaction.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Integration with NROM and MILP-Transformer}
+
+The diffusion prior interacts with the two main RFM components:
+
+\paragraph{(1) With NROM.}
+Diffusion outputs provide:
+\begin{itemize}
+    \item diverse global routing hypotheses,
+    \item structural variations for training augmentation,
+    \item noise-injected versions of feasible routes.
+\end{itemize}
+
+NROM may also provide conditioning signals for the diffusion model.
+
+\paragraph{(2) With MILP-Transformer.}
+Diffusion-derived $x^{(0)}$ serves as:
+\begin{itemize}
+    \item high-quality initialization,
+    \item exploration mechanism for escaping local minima,
+    \item regularizer preventing premature convergence,
+    \item prior over feasible modes of the routing landscape.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Training Objectives}
+
+The diffusion model is trained with the simplified loss:
+
+\[
+\mathcal{L}_{\text{diff}} = 
+\mathbb{E}_{z_0, t, \epsilon}
+\left[
+\left\|
+    \epsilon - \epsilon_\theta(z_t, t, A, b, c)
+\right\|^2
+\right],
+\]
+
+optionally augmented by:
+\begin{itemize}
+    \item \textbf{structure consistency} with graph features,
+    \item \textbf{feasibility bias} from $Ax \le b$,
+    \item \textbf{multi-modal diversity} constraints,
+    \item \textbf{RL-style value guidance} from world models.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+Diffusion priors enrich RFM by enabling:
+\begin{itemize}
+    \item multi-modal routing solution modeling,
+    \item diverse and robust initializations,
+    \item feasibility-aware generative sampling,
+    \item structured conditioning on MILP constraints,
+    \item smoother optimization landscapes,
+    \item improved generalization across networks.
+\end{itemize}
+
+They form a generative backbone that complements the MILP-Transformer
+and NROM, driving both exploration and regularization within the RFM
+pipeline.
+
+The next chapter introduces routing world models, which extend RFM to
+sequential decision-making and multi-step planning.
+
+
+% unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component IV: Routing World Models}
+\label{chap:world_model}
+
+Modern logistics systems operate in dynamic environments: traffic
+conditions evolve, demand fluctuates, processing delays accumulate,
+vehicle availability changes, and local constraints propagate throughout
+the network over time. Routing decisions therefore cannot be considered
+in isolation; they must anticipate the downstream effects of actions.
+World models provide a mechanism for learning these environment dynamics
+from data and integrating them into the Routing Foundation Model (RFM).
+
+This chapter introduces routing world models, describes their integration
+with NROM and the MILP-Transformer, and introduces a structured approach
+using state-space models (SSMs), including Mamba-style selective state
+space architectures.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Routing as Sequential Decision-Making}
+
+At each decision step $t$, the routing system observes a state:
+
+\[
+s_t = (G_t, d_t, c_t, \mathrm{cong}_t, \mathrm{inv}_t, \mathrm{slack}_t),
+\]
+
+where:
+\begin{itemize}
+    \item $G_t$: network topology and available links,
+    \item $d_t$: demand or shipment distribution,
+    \item $c_t$: dynamic edge costs (time, distance, congestion),
+    \item $\mathrm{cong}_t$: congestion indicators at facilities,
+    \item $\mathrm{inv}_t$: inventory / capacity state,
+    \item $\mathrm{slack}_t$: SLA slack or timing remaining.
+\end{itemize}
+
+A routing decision $x_t$ (binary MILP variables or soft relaxations)
+updates the environment:
+
+\[
+s_{t+1} = f_\theta(s_t, x_t),
+\]
+
+where $f_\theta$ is learned via a world model.
+
+The world model enables:
+\begin{itemize}
+    \item anticipatory decisions,
+    \item multi-step planning and rollouts,
+    \item future constraint prediction,
+    \item routing under uncertainty.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Latent World Models}
+
+Following the latent dynamics frameworks of 
+\cite{ha2018worldmodels, hafner2019planet}, 
+we introduce a latent representation:
+
+\[
+z_t = \mathrm{Encode}(s_t),
+\]
+
+and learn a transition model:
+
+\[
+z_{t+1} = g_\theta(z_t, x_t) + \epsilon_t,
+\]
+
+where $\epsilon_t$ captures stochastic fluctuations.
+
+The decoder reconstructs observable signals:
+
+\[
+\hat{s}_{t+1} = \mathrm{Decode}(z_{t+1}).
+\]
+
+For routing, $z_t$ may encode:
+\begin{itemize}
+    \item queue lengths,
+    \item travel-time distributions,
+    \item predicted delays,
+    \item congestion spillover patterns,
+    \item facility utilization,
+    \item upcoming SLA violations.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{State Space Models for Logistics Dynamics}
+
+World model transitions involve:
+\begin{itemize}
+    \item long time horizons (12–48 hours),
+    \item event-driven updates (arrivals, departures),
+    \item continuous temporal dynamics (congestion),
+    \item structured dependencies across facilities.
+\end{itemize}
+
+Transformers struggle with extremely long contexts due to
+$O(T^2)$ attention cost. State space models (SSMs) instead provide:
+
+\[
+\dot{h}(t) = A h(t) + B u(t),
+\qquad
+y(t) = C h(t),
+\]
+
+discretized into:
+
+\[
+h_{t+1} = \bar{A} h_t + \bar{B} u_t,
+\qquad
+y_{t} = C h_t,
+\]
+
+where:
+\begin{itemize}
+    \item $h_t$ is the latent state,
+    \item $u_t$ contains routing decisions $x_t$ and exogenous inputs.
+\end{itemize}
+
+Such models capture:
+\begin{itemize}
+    \item temporal smoothing,
+    \item gradual congestion buildup,
+    \item facility-level inertial effects,
+    \item multi-hop, delayed consequences of routing.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Mamba-Style Selective State Space Models}
+
+Mamba \cite{gu2024mamba} introduces selective SSMs that modulate updates
+based on input relevance:
+
+\[
+h_{t+1} = \bar{A}(x_t) h_t + \bar{B}(x_t) u_t.
+\]
+
+This “selective” mechanism is ideal for logistics:
+
+\begin{itemize}
+    \item routing decisions affect only local regions of the network,
+    \item not all constraints or facilities should update at each step,
+    \item congestion signals propagate selectively, not globally.
+\end{itemize}
+
+The Mamba-style world model performs:
+
+\[
+z_{t+1} = g_\theta(z_t, x_t)
+       = \mathrm{SSM}_\theta(z_t, x_t)
+         + \mathrm{Skip}(z_t),
+\]
+
+with routing-aware gates:
+
+\[
+g_t = \sigma(W_g [z_t; x_t]).
+\]
+
+This allows the world model to:
+\begin{itemize}
+    \item track long-horizon effects of routing,
+    \item propagate congestion signals efficiently,
+    \item scale to millions of decision steps,
+    \item maintain stability across large temporal windows.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Predicting Congestion, SLA Violations, and Delays}
+
+The world model predicts key routing metrics:
+
+\paragraph{Congestion:}
+\[
+\hat{\mathrm{cong}}_{t+1}
+= C_{\mathrm{cong}} z_{t+1}.
+\]
+
+\paragraph{Travel times:}
+\[
+\hat{\tau}_{uv, t+1}
+= C_{\tau} z_{t+1}.
+\]
+
+\paragraph{SLA slack:}
+\[
+\hat{\mathrm{slack}}_{t+1}
+= C_{\mathrm{slack}} z_{t+1}.
+\]
+
+These predictions allow planners to choose routing assignments that avoid
+future bottlenecks.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Planning via Imagination Rollouts}
+
+Using the learned transitions:
+\[
+z_{t+1} = g_\theta(z_t, x_t),
+\]
+RFM can simulate multiple hypothetical routing strategies:
+
+\[
+z_{t+k}^{(i)} =
+g_\theta(z_{t+k-1}^{(i)}, x_{t+k-1}^{(i)}),
+\qquad i = 1, \dots, M.
+\]
+
+Rollouts enable:
+\begin{itemize}
+    \item evaluating long-term effects of routing,
+    \item selecting actions that minimize expected congestion,
+    \item sensitivity analysis to demand fluctuations,
+    \item scenario planning (e.g., traffic surges).
+\end{itemize}
+
+This “imagination” capability parallels that of Dreamer/Planet
+\cite{hafner2019planet} applied to supply-chain dynamics.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interaction with MILP-Transformer and NROM}
+
+\paragraph{With the MILP-Transformer:}
+\begin{itemize}
+    \item world model predicts constraint violations before they occur,
+    \item MILP-Transformer refines solutions given predicted violations,
+    \item dual signals may incorporate future-state penalties.
+\end{itemize}
+
+\paragraph{With NROM:}
+\begin{itemize}
+    \item NROM incorporates world-model latent states into global embeddings,
+    \item world-model predictions shape the global route structure,
+    \item multi-step forecasts inform initial routing $x^{(0)}$.
+\end{itemize}
+
+This makes RFM a *temporally aware* surrogate solver.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Training Objectives}
+
+World models are trained with a mixture of losses:
+
+\paragraph{Reconstruction loss:}
+\[
+\mathcal{L}_{\text{rec}}
+= \| s_{t+1} - \hat{s}_{t+1} \|.
+\]
+
+\paragraph{Dynamics prediction loss:}
+\[
+\mathcal{L}_{\text{dyn}}
+= \| z_{t+1} - g_\theta(z_t, x_t) \|.
+\]
+
+\paragraph{Routing-alignment loss:}
+Encourages consistency with MILP-Transformer and NROM predictions.
+
+\paragraph{SLA / congestion penalty:}
+\[
+\mathcal{L}_{\text{SLA}}
+= \max(0, \hat{\mathrm{slack}} < 0).
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+Routing world models enable RFM to reason over time. Using Mamba-style
+SSMs, they provide:
+\begin{itemize}
+    \item long-horizon predictions of congestion and delays,
+    \item anticipatory routing decisions,
+    \item efficient simulation of alternative routing strategies,
+    \item structured selective updates aligned with logistics behavior.
+\end{itemize}
+
+In combination with NROM and the MILP-Transformer, world models turn RFM
+from a static optimizer into a dynamic, predictive, and adaptive routing
+foundation model.
+
+% unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Training, Evaluation, and Benchmarks}
+\label{chap:training_eval}
+
+This chapter describes the training methodology for each component of
+the Routing Foundation Model (RFM), the benchmark datasets used for
+evaluation, and the metrics employed to assess performance across
+routing tasks of varying scale and complexity. The goal of this chapter
+is to establish a reproducible framework for large-scale routing
+experiments that compare neural surrogate solvers, diffusion priors,
+world-model architectures, and mixed neural–MILP baselines.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Benchmark Datasets}
+
+We evaluate RFM on two primary classes of routing tasks:
+synthetic routing benchmarks and industrial-style middle-mile networks.
+
+\subsection{Synthetic Routing Benchmarks (50--200 Nodes)}
+
+These instances are constructed using random geometric graphs with:
+\begin{itemize}
+    \item $n \in \{50, 100, 200\}$ nodes,
+    \item Euclidean distances for arc costs,
+    \item heterogeneous vehicle capacities,
+    \item stochastic demand profiles per node,
+    \item optional time windows with soft feasibility penalties.
+\end{itemize}
+
+MILP formulations include:
+\begin{itemize}
+    \item flow conservation constraints,
+    \item capacity constraints,
+    \item distance/time budgets,
+    \item subtour-elimination approximations.
+\end{itemize}
+
+\subsection{Industrial Topologies}
+
+The industrial-style benchmarks follow hierarchical network templates
+inspired by real-world logistics systems:
+\begin{itemize}
+    \item facilities of types $\{\mathrm{FC}, \mathrm{SC}, \mathrm{DS},\mathrm{XD}\}$,
+    \item structured connectivity (FC $\to$ SC $\to$ DS),
+    \item realistic inter-facility distances,
+    \item variable congestion patterns and temporal dynamics.
+\end{itemize}
+
+Each instance yields an MILP with hundreds to thousands of binary
+decision variables.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Training Procedures}
+
+RFM training consists of multiple specialized modules trained either
+independently or jointly depending on the experiment.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MILP-Transformer Training}
+
+The MILP-Transformer is trained to approximate primal--dual optimization
+via refinement iterations. A typical training iteration consists of:
+\begin{enumerate}
+    \item Sampling an MILP instance and constructing variable and
+          constraint embeddings.
+    \item Running the MILP-Transformer for $T$ refinement steps.
+    \item Computing losses:
+    \[
+        \mathcal{L}_{\text{MT}} =
+        c^\top x
+        + \lambda_{\mathrm{feas}}\| Ax - b \|_+
+        + \lambda_{\mathrm{prox}} \|x - x_{\mathrm{prev}}\|^2.
+    \]
+    \item Updating parameters with AdamW (lr = $1\text{e}{-4}$).
+\end{enumerate}
+
+The refinement schedule uses a decaying soft-relaxation temperature:
+\[
+\tau_t = \tau_0 \cdot \gamma^t.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NROM Training}
+
+The Neural Routing Optimization Model (NROM) is trained via
+multi-objective learning, combining cost, feasibility, and structural
+regularization:
+\[
+\mathcal{L}_{\mathrm{NROM}}
+= \mathcal{L}_{\mathrm{cost}}
++ \lambda_1\mathcal{L}_{\mathrm{feas}}
++ \lambda_2\mathcal{L}_{\mathrm{struct}}.
+\]
+
+Data augmentations include:
+\begin{itemize}
+    \item randomly masking edges,
+    \item perturbing demand and cost vectors,
+    \item reshuffling node roles,
+    \item constraint randomization to improve generalization.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Diffusion Prior Training}
+
+The diffusion prior uses the improved DDPM objective from
+\cite{nichol2021improved}. Training pairs consist of:
+\begin{itemize}
+    \item feasible MILP solutions,
+    \item heuristic warm starts,
+    \item diverse near-feasible samples.
+\end{itemize}
+
+The loss is:
+\[
+\mathcal{L}_{\text{diff}} = 
+\mathbb{E}_{z_0, t, \epsilon}
+\| \epsilon - \epsilon_\theta(z_t, t, A, b, c)\|^2.
+\]
+
+Conditioning is provided via:
+\begin{itemize}
+    \item constraint embeddings,
+    \item dual violation signals,
+    \item facility-type embeddings.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{World Model Training}
+
+The world model uses Mamba-based selective SSM layers \cite{gu2024mamba}
+to predict future congestion, travel times, inventory levels, and SLA
+slack under routing decisions.
+
+Training sequences contain:
+\[
+(s_t, x_t, s_{t+1}),
+\]
+where $s_t$ encodes network conditions and $x_t$ represents routing
+actions.
+
+Loss:
+\[
+\mathcal{L}_{\text{wm}} =
+\mathcal{L}_{\text{rec}}
++ \alpha_1 \mathcal{L}_{\text{dyn}}
++ \alpha_2 \mathcal{L}_{\text{SLA}}.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluation Metrics}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Optimality Gap}
+
+For any method producing solution $x$, the optimality gap is:
+\[
+\mathrm{Gap}(x) =
+\frac{c^\top x - c^\top x^\star}{c^\top x^\star}.
+\]
+
+We report:
+\begin{itemize}
+    \item mean gap over the test set,
+    \item median gap,
+    \item 95th percentile gap.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Feasibility Violation}
+
+Feasibility is measured as:
+\[
+\mathrm{Violation}(x) = \| Ax - b \|_+,
+\]
+with breakdown by:
+\begin{itemize}
+    \item flow constraints,
+    \item capacity constraints,
+    \item time constraints,
+    \item integrality violations.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Latency}
+
+We measure:
+\begin{itemize}
+    \item per-instance inference latency,
+    \item per-layer MILP-Transformer runtime,
+    \item batched throughput,
+    \item CPU vs GPU latency differences.
+\end{itemize}
+
+Latency budgets range from 10ms to 500ms depending on the application.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Generalization}
+
+We evaluate generalization across:
+\begin{itemize}
+    \item unseen topologies,
+    \item varying node counts,
+    \item perturbed cost structures,
+    \item shifted congestion/time dynamics,
+    \item different MILP formulations (e.g., depot changes).
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Ablations}
+
+We isolate the contribution of each architectural component by removing:
+\begin{itemize}
+    \item dual violation signals,
+    \item constraint MoE,
+    \item diffusion priors,
+    \item NROM warm starts,
+    \item Mamba dynamics modules.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+This chapter presented the training pipelines, datasets, and evaluation
+methodology for RFM. The combination of diverse routing benchmarks,
+multi-component training, and rigorous metrics provides a robust
+framework for assessing neural routing architectures and guiding future
+research into large-scale neural optimization.
+
+
+% unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Related Work}
+\label{chap:related_work}
+
+The Routing Foundation Model (RFM) builds on several major research
+directions: neural combinatorial optimization, machine learning for
+mixed-integer programming, differentiable optimization layers, diffusion
+models for structured decision-making, and world models for sequential
+reasoning. This chapter surveys prior work most closely related to the
+components of RFM.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Neural Combinatorial Optimization}
+
+Neural approaches to routing began with pointer networks
+\cite{vinyals2015pointer}, which demonstrated that attention-based
+sequence models could learn heuristics for NP-hard problems like TSP.
+Subsequent work introduced reinforcement-learning-based decoders for
+routing \cite{bello2017neural, nazari2018reinforcement}, and transformer
+architectures that significantly improved solution quality and
+generalization \cite{kool2019attention}.
+
+Despite strong empirical performance, these models typically:
+\begin{itemize}
+    \item treat routing as a sequence generation problem,
+    \item lack explicit representation of MILP constraints,
+    \item struggle to generalize beyond training distributions,
+    \item provide no guarantees of feasibility.
+\end{itemize}
+
+Graph-based variants, such as Graphormer-style architectures
+\cite{ying2021transformers}, introduced structural inductive biases, but
+they still operate outside the algebraic structure of MILPs. RFM
+extends this line of work by embedding MILP coefficients, dual signals,
+and constraint geometry directly into the transformer computations,
+bridging neural sequence models and classical optimization.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Machine Learning for MILPs and the DL4MIP Paradigm}
+
+The DL4MIP community aims to accelerate or augment classical MILP
+solvers using learned components. Examples include learning to branch,
+cut, or warm start using graph neural networks
+\cite{gasse2019exact, nair2020solving}. Surveys such as
+\cite{bengio2021machine} highlight opportunities for hybrid
+learning–optimization pipelines.
+
+However, these methods:
+\begin{itemize}
+    \item depend heavily on existing solver pipelines,
+    \item focus on local components (e.g., branching decisions),
+    \item do not replace the full solver loop,
+    \item offer limited differentiability and amortization.
+\end{itemize}
+
+RFM takes a complementary approach: rather than learning to imitate
+components of MILP solvers, it learns an end-to-end *surrogate solver*
+that approximates primal--dual refinement in a fully differentiable,
+amortized fashion suitable for large-scale routing.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Differentiable Optimization Layers}
+
+Differentiable convex optimization layers such as OptNet
+\cite{amos2017optnet} and differentiable QP solvers introduced the idea
+of embedding optimization problems inside deep networks. Later work
+extended these ideas to structured prediction and bilevel optimization.
+
+While influential, these approaches generally support:
+\begin{itemize}
+    \item convex or relaxed problems,
+    \item relatively small-scale instances,
+    \item limited combinatorial structure.
+\end{itemize}
+
+RFM differs in that it addresses large-scale routing MILPs with tens of
+thousands of binary variables, combining differentiable surrogate
+solvers with learned constraint-aware refinement and generative priors.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Diffusion Models for Structured Decision-Making}
+
+Diffusion models \cite{nichol2021improved} have transformed generative
+modeling in continuous domains, and recent variants support discrete
+structures \cite{hoogeboom2021autoregressive}. Their ability to capture
+multi-modal distributions makes them attractive for routing, where many
+feasible configurations exist.
+
+Prior work has explored diffusion for graphs, but not in the context of
+explicit MILP constraints. RFM introduces a *feasibility-conditioned*
+diffusion prior that interacts with MILP structure, NROM embeddings, and
+dual signals from the MILP-Transformer. This yields generative
+initializations aligned with constraint geometry and routing semantics.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{World Models and Sequential Prediction}
+
+Latent world models \cite{ha2018worldmodels, hafner2019planet} have been
+effective in reinforcement learning domains, enabling agents to perform
+rollouts in learned latent spaces. These models capture temporal
+dynamics, uncertainty, and long-horizon dependencies.
+
+Routing environments share these temporal characteristics: congestion,
+vehicle flow, processing delays, and SLA slack evolve over time. RFM
+extends world-modeling to logistics by using:
+\begin{itemize}
+    \item latent dynamics for supply-chain state transitions,
+    \item prediction of congestion and demand fluctuations,
+    \item multi-step forecasting for routing feasibility,
+    \item integration with MILP-Transformer refinement loops.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{State Space Models and Mamba}
+
+State space models (SSMs) provide linear-time sequence processing and
+long context windows, making them attractive for large temporal
+forecasting tasks. Mamba \cite{gu2024mamba} introduced selective SSMs
+that dynamically modulate updates based on input relevance.
+
+This selective update mechanism is well suited for logistics networks,
+where only small subsets of nodes or arcs change at each time step. RFM
+adapts Mamba-style SSMs to form *Routing World Models* capable of:
+\begin{itemize}
+    \item predicting facility-level congestion,
+    \item tracking multi-hop flow propagation,
+    \item forecasting SLA violations,
+    \item supporting long-horizon decision planning.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+RFM sits at the intersection of several important research areas:
+neural combinatorial optimization, MILP-aware learning, differentiable
+optimization, diffusion generative models, and world-model-based
+planning. Its novelty lies in unifying these threads into a single
+architecture that:
+\begin{itemize}
+    \item explicitly embeds MILP structure,
+    \item performs surrogate primal--dual refinement,
+    \item generates diverse routing solutions via diffusion,
+    \item anticipates multi-step dynamics via world models,
+    \item scales to realistic industrial routing networks.
+\end{itemize}
+
+This hybrid view—neural architectures informed by optimization
+principles—defines the central contribution of RFM.
+
+
+% unchanged
+
+\chapter{Future Work}
+\label{chap:future_work}
+
+The Routing Foundation Model (RFM) establishes a unified framework for
+neural surrogate optimization, generative routing priors, and
+world-model–based planning. While the current formulation demonstrates
+the feasibility of integrating MILP-aware architectures with modern
+sequence and graph models, several promising research directions remain
+open. This chapter outlines key extensions that may significantly advance
+the scalability, robustness, and long-horizon capabilities of neural
+routing systems.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{World Models for Multi-Step Logistics Planning}
+
+Routing decisions propagate through time: congestion accumulates, travel
+times shift, facilities saturate, and SLA slack tightens. Presenting the
+problem purely as a static MILP obscures these dynamic interactions. A
+powerful extension is to develop \textbf{learned world models} that
+predict future logistics states conditioned on candidate routing
+decisions.
+
+Such models would learn transition dynamics of the form:
+\[
+s_{t+1} = f_\theta(s_t, x_t),
+\]
+where $s_t$ includes congestion maps, facility loads, travel-time
+distributions, and SLA slack profiles.
+
+Recent selective SSM architectures such as Mamba
+\cite{gu2024mamba} are well-suited for this purpose due to their ability
+to model long sequences with linear-time complexity and selective memory
+mechanisms. Coupling a world model with a MILP surrogate enables:
+\begin{itemize}
+    \item \textbf{long-horizon planning} via model-based rollouts,
+    \item \textbf{decision refinement} using predicted congestion futures,
+    \item \textbf{anticipatory routing} that optimizes for future—not only current—network states,
+    \item \textbf{MuZero-style planning} with differentiable surrogate rewards.
+\end{itemize}
+
+An end-to-end RFM planner integrating MILP surrogates and world models
+could optimize entire daily transportation plans, bridging operations
+research and model-based reinforcement learning.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Generative MILP Priors and Large-Scale Pretraining}
+
+A central challenge in routing optimization is the combinatorial
+structure and multi-modality of feasible solutions. Diffusion models
+already provide a promising foundation for capturing this diversity. A
+natural next step is to build \textbf{large-scale generative priors over
+MILPs themselves}.
+
+Pretraining over diverse MILPs from:
+\begin{itemize}
+    \item vehicle routing,
+    \item matching and assignment,
+    \item scheduling,
+    \item network flow,
+    \item facility-location problems
+\end{itemize}
+could yield universal feasibility priors analogous to foundation models
+in language or vision.
+
+Such pretraining may provide:
+\begin{itemize}
+    \item \textbf{faster convergence} via improved initialization,
+    \item \textbf{zero-shot feasibility} for unseen MILP structures,
+    \item \textbf{meta-learning effects} across constraint families,
+    \item \textbf{amortized reasoning} for large-scale logistics systems.
+\end{itemize}
+
+Improved diffusion processes \cite{nichol2021improved, hoogeboom2021autoregressive}
+or flow-based generative models could further accelerate sampling and
+support conditioning on detailed MILP metadata.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hybrid Neural--MILP Pipelines}
+
+The MILP-Transformer and NROM provide fast approximate solutions, but
+classical solvers remain unmatched in final optimality guarantees. A
+hybrid pipeline leverages the strengths of both worlds:
+\begin{itemize}
+    \item neural surrogates generate diverse warm starts,
+    \item feasibility-enforcing refinement reduces constraint violations,
+    \item Gurobi or CPLEX use these warm starts to reduce
+          branch-and-bound search depth,
+    \item latency is dramatically decreased under strict time budgets.
+\end{itemize}
+
+This hybrid approach could achieve:
+\begin{itemize}
+    \item near-optimal solutions within milliseconds,
+    \item bounded-optimality regimes for large-scale systems,
+    \item improved reliability across edge cases,
+    \item robustness under structural distribution shifts.
+\end{itemize}
+
+Such pipelines may represent a practical path toward real-world adoption
+of neural optimization systems in industrial routing environments.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Graph-Based and SSM-Based Architectures}
+
+Routing involves complex spatial and hierarchical relationships that may
+not be fully captured by generic transformer architectures. Several
+graph-aware model families offer promising extensions:
+
+\paragraph{Graphormer variants} \cite{ying2021transformers}.  
+These models incorporate centrality encoding, spatial bias, and
+edge-based attention that naturally encode routing structure.
+
+\paragraph{Selective State Space Models (Mamba).}  
+Mamba’s capability to model long-range dependencies with linear-time
+complexity makes it a strong candidate for:
+\begin{itemize}
+    \item large networks with long refinement procedures,
+    \item dynamic routing influenced by temporal congestion,
+    \item stability improvements via implicit recurrence.
+\end{itemize}
+
+\paragraph{Hybrid graph + SSM models.}  
+Combining graph transformers with SSM recurrence could unify:
+\begin{itemize}
+    \item structural reasoning (via attention),
+    \item long-horizon temporal reasoning (via SSMs),
+    \item scalable refinement loops (via selective memory).
+\end{itemize}
+
+Such architectures may yield more stable optimization trajectories,
+reduced feasibility violations, and improved generalization across
+network scales.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Summary}
+
+The future work directions outlined in this chapter represent broad
+opportunities for extending the capabilities of routing foundation
+models. By integrating world-model dynamics, generative MILP priors,
+hybrid neural–solver pipelines, and advanced architectures, RFM may
+evolve into a general-purpose optimization framework capable of
+scaling to the complexity of real-world logistics systems.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Discussion and Open Problems}
+\label{chap:discussion}
+
+The Routing Foundation Model (RFM) unifies neural surrogate optimization,
+diffusion generative priors, constraint-aware attention, and world-model
+reasoning into a single framework for large-scale routing. While the
+empirical and conceptual foundations are promising, several theoretical,
+practical, and computational questions remain unanswered. This chapter
+discusses open challenges, limitations, and potential directions for
+future research.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{When Can Surrogate Solvers Replace Classical MILPs?}
+
+A central question is the extent to which neural surrogate solvers can
+replace or augment classical MILP solvers. While MILP solvers provide:
+\begin{itemize}
+    \item guarantees on optimality gaps,
+    \item deterministic feasibility,
+    \item decades of hand-engineered heuristics,
+\end{itemize}
+neural models excel at:
+\begin{itemize}
+    \item amortized inference,
+    \item rapid adaptation to new topologies,
+    \item capturing multi-modal solution structures,
+    \item integrating perception, demand prediction, and routing.
+\end{itemize}
+
+Open problems include:
+\begin{enumerate}
+    \item Characterizing conditions under which surrogate solvers can
+          reliably produce feasible solutions.
+    \item Quantifying approximation error and feasibility guarantees.
+    \item Defining hybrid pipelines that mix neural updates with classical
+          solver callbacks.
+    \item Developing principled criteria for when to trust neural surrogate
+          outputs in production routing systems.
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scalability and Robustness}
+
+Industrial routing MILPs may contain millions of variables and constraints.
+Scaling RFM to such sizes requires progress in:
+
+\paragraph{1. Memory efficiency.}
+Transformers and GNNs scale poorly without structural sparsity.
+
+\paragraph{2. Constraint aggregation.}
+Some routing constraints (e.g., flow conservation) appear at massive
+scale; learning compact representations is nontrivial.
+
+\paragraph{3. Robustness to distribution shift.}
+Routing networks change over time—new facilities open, costs change,
+traffic patterns shift—which may break the assumptions learned by RFM.
+
+\paragraph{4. Latency guarantees.}
+Real-time logistics requires strict latency budgets (often milliseconds).
+Neural inference must satisfy worst-case guarantees.
+
+\paragraph{5. Fault tolerance and fallback modes.}
+A production routing system must fail safely when neural predictions are
+uncertain or infeasible.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Generalization Across Network Topologies}
+
+A significant open problem in Neural CO is generalization. Empirical
+results suggest:
+\begin{itemize}
+    \item transformers generalize poorly to larger graph sizes,
+    \item GNNs struggle with long-range dependencies,
+    \item diffusion models may overfit to specific network structures.
+\end{itemize}
+
+RFM partially addresses this by embedding MILP structure, but deeper
+questions remain:
+\begin{enumerate}
+    \item How to transfer solutions from one geographic region to another?
+    \item Can we learn invariances over routing structures (e.g., hub-and-spoke,
+          serpentine, mesh networks)?
+    \item How well does RFM extrapolate to unseen cost regimes or capacity
+          profiles?
+    \item What architectural or training signals best capture universal routing
+          principles?
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hybrid Neural--MILP Pipelines}
+
+Hybrid pipelines may offer the best of both worlds:
+\begin{itemize}
+    \item neural diffusion priors provide initialization,
+    \item NROM offers global structural reasoning,
+    \item MILP-Transformer performs constraint-aware refinement,
+    \item classical solvers finalize feasibility or improve optimality.
+\end{itemize}
+
+Open research questions include:
+\begin{enumerate}
+    \item How to integrate learned dual signals into classical solvers?
+    \item Can neural surrogates serve as warm starts across solver nodes?
+    \item Can MILP branch-and-bound algorithms incorporate neural priors?
+    \item What is the right balance between learned components and handcrafted heuristics?
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Learning Theory for Combinatorial Surrogates}
+
+A formal theory of surrogate MILP solvers remains elusive:
+\begin{itemize}
+    \item What is the sample complexity of learning feasible routing
+          distributions?
+    \item Do diffusion priors converge to MILP-feasible manifolds?
+    \item Under what smoothness assumptions does the MILP-Transformer mimic
+          primal--dual trajectories?
+    \item How do approximation errors propagate across refinement layers?
+\end{itemize}
+
+Establishing theoretical foundations is crucial for reliability in
+mission-critical logistics environments.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Diffusion Priors and Multi-Modal Routing}
+
+Diffusion models introduce a powerful inductive bias for multi-modal
+solution spaces, but several open challenges remain:
+\begin{itemize}
+    \item Efficiently training diffusion models on high-dimensional routing
+          vectors.
+    \item Conditioning diffusion processes on constraint families without
+          sacrificing diversity.
+    \item Ensuring denoised solutions lie near feasible MILP regions.
+    \item Integrating world-model predictions into diffusion sampling.
+\end{itemize}
+
+Understanding how diffusion priors reshape the routing optimization
+landscape is an exciting research direction.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{World Models for Logistics and SSM Challenges}
+
+Routing world models based on Mamba-style SSMs open new possibilities
+for anticipatory routing, but also raise new questions:
+\begin{itemize}
+    \item How to model multi-timescale effects (minutes vs. hours vs. days)?
+    \item How to represent uncertainty in congestion and demand forecasts?
+    \item How to incorporate exogenous factors (weather, promotions,
+          regional events)?
+    \item Can world-model rollouts be incorporated into MILP refinement as
+          future-value regularizers?
+    \item What is the theoretical stability of SSMs under long-horizon
+          routing updates?
+\end{itemize}
+
+These questions matter for real-world deployment.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Toward Routing Foundation Models}
+
+RFM suggests a broader research agenda:
+
+\paragraph{Universal routing representations.}
+Learned embeddings that transfer across geographic regions, networks, and
+industrial contexts.
+
+\paragraph{Amortized global optimization.}
+Neural surrogate solvers that handle entire families of related MILPs.
+
+\paragraph{Hierarchical world models.}
+Multi-scale models capturing local, regional, and national routing
+dynamics.
+
+\paragraph{Unifying routing, forecasting, and planning.}
+Joint models integrating:
+\begin{itemize}
+    \item predictive demand modeling,
+    \item congestion forecasting,
+    \item routing optimization,
+    \item risk-aware decision-making.
+\end{itemize}
+
+\paragraph{AGI-oriented perspectives.}
+Routing and logistics represent a rich domain for studying:
+\begin{itemize}
+    \item structured reasoning,
+    \item sequential planning,
+    \item constraint satisfaction,
+    \item generalization beyond training data.
+\end{itemize}
+
+Foundation models for optimization may form a key building block for
+general-purpose reasoning systems.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+RFM opens a path toward unifying classical optimization with modern
+deep learning. The opportunities are vast, but so are the challenges:
+scalability, feasibility guarantees, generalization, theory, and
+multi-step decision making. Addressing these open problems will be
+critical for translating foundation-model-based routing into industrial
+deployments and advancing the frontier of neural optimization research.
+
+
+% unchanged
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+This monograph introduced the \emph{Routing Foundation Model (RFM)}, a
+unified neural architecture for large-scale routing and mixed-integer
+optimization. RFM integrates several complementary components—
+MILP-aware encoders, the MILP-Transformer surrogate solver, the Neural
+Routing Optimization Model (NROM), diffusion priors for multi-modal
+decision landscapes, and Mamba-based world models for sequential
+logistics dynamics. Together, these modules form a coherent system
+capable of approximating routing MILPs, anticipating network evolution,
+and generating diverse, feasible routing strategies with amortized
+inference cost.
+
+RFM departs from traditional neural combinatorial optimization
+approaches in several key ways. Rather than treating routing as sequence
+generation or heuristic imitation, RFM embeds MILP structure directly
+into its computation: constraint embeddings, dual violation signals,
+structure-aware attention, and proximal refinement loops allow the model
+to approximate primal--dual optimization in a differentiable and highly
+scalable manner. This neural surrogate behavior enables RFM to address
+industrial routing scenarios where classical solvers face latency
+constraints or repeated re-optimization demands.
+
+The monograph also highlighted the role of generative modeling in
+optimization. Diffusion priors, conditioned on MILP structure, allow RFM
+to capture the inherently multi-modal nature of routing solution spaces
+and to generate diverse high-quality initializations. Similarly, world
+models—particularly those based on selective state space architectures—
+provide a principled mechanism for forecasting congestion, delays, and
+future constraint conditions, enabling anticipatory and temporally aware
+routing decisions.
+
+Despite these advances, substantial open challenges remain. Scaling to
+millions of variables, guaranteeing feasibility, understanding neural
+approximation of combinatorial structure, and developing theoretical
+foundations for surrogate MILP solvers represent major research
+opportunities. The integration of neural and classical optimization
+continues to be a fertile domain: hybrid pipelines combining diffusion
+priors, neural surrogate refinement, and classical solver verification
+may become a practical path toward reliable deployment in supply-chain
+systems.
+
+More broadly, RFM points toward a future where optimization itself
+becomes a learned process—amortized, adaptive, and prediction-aware.
+Routing provides an exceptionally rich testbed for such research, with
+complex constraints, dynamic environments, and large-scale structure.
+The techniques explored here may generalize beyond routing to other
+domains involving planning, resource allocation, control, and structured
+reasoning.
+
+By unifying optimization principles with neural generative modeling and
+world-model-based forecasting, RFM represents one step toward a broader
+class of \emph{foundation models for decision-making}. The hope is that
+this framework inspires future work at the intersection of optimization,
+machine learning, and operations research—advancing both the practical
+state of industrial routing and the theoretical foundations of neural
+optimization.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \bibliographystyle{plainnat}
+\bibliography{references}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+\chapter{Additional Derivations}
+\label{app:derivations}
+
+This appendix provides supplementary mathematical derivations that
+underpin the components of the Routing Foundation Model (RFM). These
+include primal--dual formulations for routing MILPs, gradient
+expressions used within the MILP-Transformer, proximal refinement
+updates, constraint-expert decomposition, diffusion denoising
+equations, and latent-state evolution for routing world models.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Primal--Dual Formulation of Routing MILPs}
+
+Consider the compact MILP:
+
+\[
+\min_{x \in \{0,1\}^n} \; c^\top x 
+\quad \text{s.t.} \quad Ax \le b.
+\]
+
+Relaxing $x \in \{0,1\}^n$ to $x \in [0,1]^n$ yields the LP relaxation:
+
+\[
+\min_{x \in [0,1]^n} \; c^\top x 
+\quad \text{s.t.} \quad Ax \le b.
+\]
+
+The Lagrangian is:
+
+\[
+\mathcal{L}(x, \lambda)
+= c^\top x + \lambda^\top (Ax - b),
+\qquad \lambda \ge 0.
+\]
+
+The dual function is:
+
+\[
+g(\lambda)
+= \inf_{x \in [0,1]^n} \mathcal{L}(x, \lambda).
+\]
+
+Differentiating the constraint term gives the dual update direction:
+
+\[
+\nabla_\lambda \mathcal{L} = Ax - b,
+\]
+
+which motivates the violation vector:
+
+\[
+v = \max(0, Ax - b),
+\]
+
+and the dual message used in the MILP-Transformer:
+
+\[
+h = A^\top v.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Derivation of the Soft Integer Relaxation Gradient}
+
+Let the relaxed variable be:
+
+\[
+x_i = \sigma(\ell_i / \tau).
+\]
+
+Then:
+
+\[
+\frac{\partial x_i}{\partial \ell_i}
+= \frac{1}{\tau} x_i (1 - x_i).
+\]
+
+Thus, gradients from losses propagate to logits as:
+
+\[
+\frac{\partial \mathcal{L}}{\partial \ell_i}
+= \frac{1}{\tau} x_i (1 - x_i)
+  \cdot \frac{\partial \mathcal{L}}{\partial x_i}.
+\]
+
+This induces integrality pressure near 0 or 1 as $x_i(1-x_i)$ becomes
+small.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Proximal Refinement Update}
+
+Let the refinement step minimize:
+
+\[
+\mathcal{R}(x)
+= \mathcal{L}(x) + \frac{1}{2\eta}\| x - x^{(t)} \|^2,
+\]
+
+where $\eta$ is a proximal coefficient.
+
+Setting the derivative to zero:
+
+\[
+\nabla_x \mathcal{L}(x^{(t)}) + \frac{1}{\eta}(x^{(t+1)} - x^{(t)}) = 0,
+\]
+
+yields the update:
+
+\[
+x^{(t+1)} = x^{(t)} - \eta \, \nabla_x \mathcal{L}(x^{(t)}).
+\]
+
+The MILP-Transformer replaces this with a learned refinement operator:
+
+\[
+x^{(t+1)} = \mathrm{Refine}(x^{(t)}, g),
+\]
+
+where $g = \nabla_x \mathcal{L}$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MoE Constraint Decomposition}
+
+Suppose constraints are partitioned into $K$ families:
+
+\[
+\{A^{(1)}, A^{(2)}, \dots, A^{(K)}\}.
+\]
+
+Let violation components be:
+
+\[
+v^{(k)} = \max(0, A^{(k)}x - b^{(k)}).
+\]
+
+The Mixture-of-Experts computes:
+
+\[
+\Phi = \sum_{k=1}^K \alpha_k \, \phi_k(v^{(k)}),
+\]
+
+where gating weights are:
+
+\[
+\alpha_k = \mathrm{softmax}(W v).
+\]
+
+Gradients through MoE compute:
+
+\[
+\frac{\partial \Phi}{\partial x}
+= \sum_{k=1}^K \alpha_k \, A^{(k)\top} 
+   \nabla \phi_k(v^{(k)}).
+\]
+
+This corresponds to constraint-family-specific dual updates.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Diffusion Denoising Derivations}
+
+Using the DDPM forward process:
+
+\[
+z_t = \sqrt{\bar{\alpha}_t} z_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon,
+\]
+
+the ideal denoiser predicts $\epsilon$:
+
+\[
+\epsilon_\theta(z_t, t) \approx \epsilon.
+\]
+
+Solving for $z_0$ yields:
+
+\[
+\hat{z}_0
+= \frac{1}{\sqrt{\bar{\alpha}_t}}
+    \left(z_t - \sqrt{1-\bar{\alpha}_t} \,
+    \epsilon_\theta(z_t, t) \right).
+\]
+
+The reverse sampling step is:
+
+\[
+z_{t-1}
+= \sqrt{\bar{\alpha}_{t-1}} \hat{z}_0
+  + \sqrt{1 - \bar{\alpha}_{t-1}} \, \epsilon'.
+\]
+
+For discrete routing variables, the diffusion process uses a masked
+categorical corruption model, whose reverse distribution is:
+
+\[
+p_\theta(x_{t-1} \mid x_t)
+= \mathrm{softmax}(W_t h_\theta(x_t, t)).
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{World Model Latent Dynamics}
+
+RFM's world model follows Mamba-style selective state space updates:
+
+Continuous-time SSM:
+
+\[
+\dot{h}(t) = A h(t) + B u(t),
+\qquad
+y(t) = C h(t).
+\]
+
+Discretization with step $\Delta$:
+
+\[
+h_{t+1} = \bar{A} h_t + \bar{B} u_t,
+\]
+
+where:
+
+\[
+\bar{A} = e^{A \Delta},
+\qquad
+\bar{B} = \int_0^\Delta e^{A(\Delta - \tau)} B \, d\tau.
+\]
+
+Selective gating adds:
+
+\[
+h_{t+1}
+= g_t \odot (\bar{A} h_t + \bar{B} u_t) 
+  + (1 - g_t) \odot h_t,
+\]
+
+where:
+
+\[
+g_t = \sigma(W_g [h_t; u_t]).
+\]
+
+This yields long-range propagation of congestion and delay signals.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MILP Graph Bipartite Embedding}
+
+RFM embeds MILP structure using the bipartite graph:
+
+\[
+\mathcal{G} = (X, C, E),
+\]
+
+where:
+\begin{itemize}
+    \item $X$ = variables,
+    \item $C$ = constraints,
+    \item $E = \{(i,j) : A_{j,i} \neq 0\}$.
+\end{itemize}
+
+A GNN update step is:
+
+\[
+x_i^{(t+1)} = 
+f_x\left(
+    x_i^{(t)}, 
+    \sum_{j : (i,j) \in E}
+    A_{j,i} \, u_j^{(t)}
+\right),
+\]
+
+\[
+u_j^{(t+1)} =
+f_c\left(
+    u_j^{(t)}, 
+    \sum_{i : (i,j) \in E}
+    A_{j,i} \, x_i^{(t)}
+\right).
+\]
+
+This provides structural context to MILP-Transformer layers.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+This appendix presented derivations that support RFM’s key components:
+primal--dual updates, soft relaxation, proximal refinement, MoE
+constraint decomposition, diffusion denoising, state-space world model
+dynamics, and MILP bipartite graph embeddings. These foundations clarify
+how neural reasoning, MILP structure, and generative modeling interact
+within the RFM architecture.
+
+\chapter{Implementation Details}
+\label{app:implementation}
+
+This appendix describes implementation details for the components of the
+Routing Foundation Model (RFM), including data generation, MILP
+construction, model configurations, training procedures, optimization
+hyperparameters, and evaluation protocols. These details support
+reproducibility and clarify practical considerations in large-scale
+routing experiments.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Routing MILP Construction}
+
+All routing instances are represented in the compact form:
+
+\[
+\min_x c^\top x
+\quad \text{s.t. } Ax \le b,\; x \in \{0,1\}^n.
+\]
+
+MILPs were generated using:
+\begin{itemize}
+    \item realistic hub–spoke and multi-echelon network templates,
+    \item random geometric graphs for synthetic topologies,
+    \item facility types drawn from \{FC, SC, DS, cross-dock\},
+    \item cost matrices incorporating distance, congestion, and traffic noise.
+\end{itemize}
+
+\paragraph{Flow constraints.}
+For each facility \(u\), flow conservation is encoded as:
+
+\[
+\sum_{v} x_{uv} = \sum_{v} x_{vu}.
+\]
+
+\paragraph{Capacity constraints.}
+Each vehicle or facility capacity constraint is:
+
+\[
+\sum_i a_i x_i \le b.
+\]
+
+\paragraph{Timing / SLA constraints.}
+Travel-time and processing windows are linearized when possible:
+
+\[
+\sum_{(u,v)} \tau_{uv} x_{uv} \le \mathrm{SLA}.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data Generation and Preprocessing}
+
+Routing datasets include:
+\begin{itemize}
+    \item synthetic random geometric networks with 50–200 nodes,
+    \item industrial-style networks with hierarchical facility layouts,
+    \item time-varying congestion profiles sampled from stochastic models,
+    \item demand snapshots sampled from real-like distributions.
+\end{itemize}
+
+Each instance is preprocessed into:
+\begin{itemize}
+    \item node features (type, capacity, demand),
+    \item arc features (distance, cost, time),
+    \item constraint embeddings from MILP matrices,
+    \item graph adjacency structures for NROM and world models.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Model Architectures}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MILP-Aware Encoder}
+
+Variable embeddings use:
+\begin{itemize}
+    \item cost coefficient $c_i$,
+    \item constraint participation vector $A_{:,i}$,
+    \item node and arc metadata,
+    \item positional or geometric encodings for graph structure.
+\end{itemize}
+
+Constraint embeddings use:
+\begin{itemize}
+    \item right-hand side $b_j$,
+    \item row coefficients $A_{j,:}$,
+    \item constraint-family type,
+    \item dual violation statistics.
+\end{itemize}
+
+Dimensionality:
+\[
+d_{\text{var}} = d_{\text{const}} = 128.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MILP-Transformer}
+
+Each MILP-Transformer layer contains:
+\begin{itemize}
+    \item multi-head MILP-aware attention (8 heads),
+    \item constraint-specific MoE with 4–8 experts,
+    \item latent refinement MLP with GELU activation,
+    \item residual + layer normalization.
+\end{itemize}
+
+Soft-relaxation temperature schedule:
+\[
+\tau_t = 0.5 \cdot 0.95^t.
+\]
+
+Number of layers:
+\[
+T \in \{6, 8, 10\}.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NROM (Neural Routing Optimization Model)}
+
+NROM uses a hybrid encoder:
+\begin{itemize}
+    \item Graphormer / GAT-style layers for network topology,
+    \item transformer blocks for sequence reasoning,
+    \item cross-attention between variable and node embeddings.
+\end{itemize}
+
+Decoder generates initial relaxed routing decisions:
+\[
+x^{(0)} = \sigma(W e),
+\]
+where $e$ are processed variable embeddings.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Diffusion Prior}
+
+Latent dimension: 64 or 128.
+
+Forward noise schedule follows \cite{nichol2021improved}.  
+Reverse denoiser uses:
+\begin{itemize}
+    \item 8–12 transformer layers,
+    \item conditioning via constraint embeddings,
+    \item optional feasibility projection.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{World Model (SSM/Mamba)}
+
+The routing world model uses:
+\begin{itemize}
+    \item selective SSM layers as in \cite{gu2024mamba},
+    \item latent dimensionality 64–128,
+    \item GRU-style skip connections for stability,
+    \item cross-attention to integrate routing decisions.
+\end{itemize}
+
+Prediction heads reconstruct:
+\begin{itemize}
+    \item congestion $\mathrm{cong}_{t+1}$,
+    \item travel times $\tau_{t+1}$,
+    \item inventory levels,
+    \item SLA slack.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Training Procedures}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MILP-Transformer Training}
+
+Objective:
+\[
+\mathcal{L}_{\text{MT}} = 
+c^\top x + \| Ax - b \|_+ + \beta \cdot \mathrm{Reg}(x).
+\]
+
+Optimizer:
+\begin{itemize}
+    \item AdamW, learning rate $1\text{e}{-4}$,
+    \item cosine decay schedule,
+    \item gradient clipping at 1.0.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NROM Training}
+
+Joint losses:
+\[
+\mathcal{L}_{\text{NROM}} =
+\mathcal{L}_{\text{feas}}
++ \lambda_1 \mathcal{L}_{\text{cost}}
++ \lambda_2 \mathcal{L}_{\text{struct}}.
+\]
+
+Warm-starting significantly improves convergence.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Diffusion Model Training}
+
+Loss:
+\[
+\mathcal{L}_{\text{diff}} = 
+\mathbb{E}_{z_0,t,\epsilon}
+\| \epsilon - \epsilon_\theta(z_t, t, A, b, c) \|^2.
+\]
+
+Noise levels: 1000 steps.
+
+Augmentations:
+\begin{itemize}
+    \item constraint masking,
+    \item edge-drop perturbations,
+    \item topology reshuffling.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{World Model Training}
+
+Loss:
+\[
+\mathcal{L}_{\text{wm}} =
+\mathcal{L}_{\text{rec}}
++ \alpha_1 \mathcal{L}_{\text{dyn}}
++ \alpha_2 \mathcal{L}_{\text{SLA}}.
+\]
+
+Training uses:
+\begin{itemize}
+    \item AdamW,
+    \item batch size 32–64 trajectories,
+    \item rollout horizon 24–64 steps.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluation Metrics}
+
+RFM is evaluated on:
+\begin{itemize}
+    \item \textbf{Optimality gap:}
+    \[
+    \frac{c^\top x - c^\top x^\star}{c^\top x^\star}.
+    \]
+    \item \textbf{Feasibility violation:}
+    \[
+    \| Ax - b \|_+.
+    \]
+    \item \textbf{Latency:}
+    end-to-end inference time.
+    \item \textbf{Generalization:}
+    performance on unseen network topologies.
+    \item \textbf{Diffusion diversity:}
+    entropy of generated routing samples.
+    \item \textbf{World-model accuracy:}
+    prediction error of congestion, slack, and dynamics.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Practical Considerations}
+
+\paragraph{Numerical stability.}
+Dual violation vectors may exhibit large magnitudes; normalization is
+crucial.
+
+\paragraph{Constraint sparsity.}
+$A$ is sparse; efficient sparse attention kernels improve scalability.
+
+\paragraph{Batching.}
+MILP matrices vary in shape; padding and block-diagonal batching were
+used.
+
+\paragraph{Mixed-precision training.}
+AMP improves training speed without degrading feasibility.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+This appendix outlined the practical considerations needed to implement
+RFM at scale. These details—MILP construction, model architectures,
+training schedules, optimization strategies, and evaluation metrics—form
+the basis for reproducibility and industrial deployment.
+
+\chapter{Extended Experimental Protocols}
+\label{app:experiments}
+
+This appendix provides detailed protocols for generating datasets,
+training RFM components, running controlled experiments, and evaluating
+performance across a wide range of routing and MILP settings. These
+procedures ensure reproducibility and allow systematic comparison of
+neural surrogate solvers, diffusion priors, and world-model-based
+planning architectures.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Routing Instance Generation}
+
+We evaluate RFM on two families of routing datasets:
+synthetic geometric networks and industrial-style multi-echelon
+logistics networks.
+
+\subsection{Synthetic 50--200 Node Instances}
+
+Nodes are sampled from a 2D Euclidean plane with uniform density.
+For each instance:
+\begin{itemize}
+    \item $n \in \{50, 100, 200\}$ nodes,
+    \item edge distances computed via Euclidean metric,
+    \item demand levels sampled from a truncated normal distribution,
+    \item time windows generated with slack proportional to distance,
+    \item vehicle capacities drawn from a discrete set.
+\end{itemize}
+
+MILP constraints include:
+\begin{itemize}
+    \item flow conservation,
+    \item vehicle capacity,
+    \item time-window feasibility,
+    \item subtour elimination approximations.
+\end{itemize}
+
+\subsection{Industrial Middle-Mile Topologies}
+
+We construct networks mimicking Amazon-style routing graphs with:
+\begin{itemize}
+    \item facility types: FC, SC, DS, cross-docks,
+    \item hierarchical connectivity: FC→SC→DS,
+    \item realistic inter-facility distances,
+    \item stochastic congestion and seasonal demand.
+\end{itemize}
+
+MILPs include thousands of binary variables per instance.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Baselines}
+
+We compare RFM against:
+
+\begin{itemize}
+    \item \textbf{Gurobi} (exact solver with tuned heuristics),
+    \item \textbf{CPLEX} (canonical MILP solver),
+    \item \textbf{Neural CO} pointer-network baselines \cite{bello2017neural},
+    \item \textbf{Attention-based routing} \cite{vinyals2015pointer},
+    \item \textbf{Graphormer routing models} \cite{ying2021transformers},
+    \item \textbf{Learned branching / cutting} \cite{nair2020solving, gasse2019exact},
+    \item \textbf{Diffusion-based CO models} \cite{hoogeboom2021autoregressive}.
+\end{itemize}
+
+All neural baselines use similar parameter counts for fairness.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Training Pipelines}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{MILP-Transformer Training}
+
+Each training epoch consists of:
+\begin{enumerate}
+    \item Sample a routing MILP instance.
+    \item Construct variable + constraint embeddings.
+    \item Perform $T$ refinement steps of the MILP-Transformer.
+    \item Compute losses:
+    \[
+    \mathcal{L} = 
+    c^\top x
+    + \lambda_{\mathrm{feas}} \| Ax - b \|_+
+    + \lambda_{\mathrm{prox}} \|x - x_{\mathrm{prev}}\|^2.
+    \]
+    \item Update network parameters via AdamW.
+\end{enumerate}
+
+We evaluate convergence in:
+\begin{itemize}
+    \item optimality gap,
+    \item feasibility violation,
+    \item stability of refinement steps.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Diffusion Prior Training}
+
+We follow the improved DDPM training method of  
+Nichol and Dhariwal \cite{nichol2021improved}.  
+The forward process uses $\beta_t$ increasing linearly.
+
+Training batches include:
+\begin{itemize}
+    \item feasible MILP solutions,
+    \item near-feasible solver warm starts,
+    \item diverse routing samples from heuristics.
+\end{itemize}
+
+Conditioning signal includes:
+\begin{itemize}
+    \item constraint embeddings,
+    \item dual violation statistics,
+    \item network topology embeddings.
+\end{itemize}
+
+Metrics:
+\begin{itemize}
+    \item negative log-likelihood (optional),
+    \item sample feasibility rate,
+    \item sample diversity score,
+    \item reverse process stability.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{NROM Training Protocol}
+
+Training uses multi-task loss:
+\[
+\mathcal{L}_{\mathrm{NROM}}
+= \mathcal{L}_{\mathrm{cost}}
++ \lambda_1 \mathcal{L}_{\mathrm{feas}}
++ \lambda_2 \mathcal{L}_{\mathrm{struct}}.
+\]
+
+Data augmentations:
+\begin{itemize}
+    \item topology perturbations,
+    \item synthetic demand shifts,
+    \item constraint randomization,
+    \item cost perturbations.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{World Model Training (Mamba-Based)}
+
+Datasets consist of network state trajectories:
+\[
+(s_t, x_t, s_{t+1}).
+\]
+
+Each $s_t$ includes:
+\begin{itemize}
+    \item congestion heatmaps,
+    \item predicted arrival times,
+    \item facility utilization,
+    \item SLA slack estimations.
+\end{itemize}
+
+Architecture uses Mamba SSM layers \cite{gu2024mamba} with:
+\begin{itemize}
+    \item kernel length 16–64,
+    \item latent dimension 128,
+    \item selective update gates,
+    \item cross-attention to routing embeddings.
+\end{itemize}
+
+Loss terms:
+\[
+\mathcal{L}_{\text{wm}}
+= \mathcal{L}_{\text{dyn}}
++ \alpha_1 \mathcal{L}_{\text{cong}}
++ \alpha_2 \mathcal{L}_{\text{SLA}}.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Evaluation Protocols}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Optimality Gap Evaluation}
+
+For each method, we compute:
+\[
+\mathrm{Gap}(x) = 
+\frac{c^\top x - c^\top x^\star}{c^\top x^\star}.
+\]
+
+We evaluate both:
+\begin{itemize}
+    \item mean gap,
+    \item 95th percentile (worst-case) gap.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Feasibility Evaluation}
+
+We measure raw violation:
+\[
+\| Ax - b \|_+.
+\]
+
+And constraint-family breakdown:
+\begin{itemize}
+    \item flow conservation,
+    \item capacity,
+    \item timing,
+    \item integrality rounding.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Latency Evaluation}
+
+We measure:
+\begin{itemize}
+    \item per-instance inference time,
+    \item per-layer MILP-Transformer runtime,
+    \item batching throughput,
+    \item GPU vs CPU speed differences.
+\end{itemize}
+
+Latency budgets target:
+\[
+10\text{ ms} - 500\text{ ms}.
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Generalization Studies}
+
+We evaluate:
+\begin{itemize}
+    \item unseen network topologies,
+    \item new facility-type mixtures,
+    \item larger-than-training instances,
+    \item temporal shift in congestion models.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Ablation Studies}
+
+We ablate:
+\begin{itemize}
+    \item removing dual signals,
+    \item removing constraint MoE,
+    \item removing diffusion priors,
+    \item replacing Mamba with GRU/LSTM,
+    \item reduced refinement steps,
+    \item no topology embeddings.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+
+This appendix presented comprehensive experimental protocols for
+evaluating RFM across synthetic and industrial routing tasks. These
+protocols ensure rigorous comparison of surrogate solvers, generative
+models, and world-model-based planning modules, enabling reproducible
+research and large-scale benchmarking of neural optimization systems.
+
+
+\end{document}

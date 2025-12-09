@@ -1,0 +1,461 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Routing Foundation Model (RFM) — Technical Monograph
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt]{report}
+
+% -------------------- TYPOGRAPHY --------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\linespread{1.1}
+
+% -------------------- GEOMETRY --------------------
+\usepackage[margin=1.1in]{geometry}
+
+% -------------------- PACKAGES --------------------
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{textcomp}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% -------------------- LISTS --------------------
+\setlist{nosep,leftmargin=1.5em}
+
+% -------------------- HYPERREF --------------------
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = blue,
+    citecolor  = teal,
+    urlcolor   = magenta
+}
+
+% -------------------- CHAPTER STYLE --------------------
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\quad}{0pt}{}
+
+% -------------------- THEOREMS --------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% -------------------- TITLE PAGE --------------------
+\title{
+\Huge \textbf{Routing Foundation Model (RFM)}\\[8pt]
+\Large A Unified Neural Optimization Framework\\
+for Large-Scale Routing and MILPs
+}
+
+\author{
+\Large Ritwika Kancharla\\[4pt]
+\large \texttt{ritwikareddykancharla@gmail.com}
+}
+
+\date{\today}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+\thispagestyle{empty}
+
+\pagenumbering{roman}
+
+% -------------------- ABSTRACT --------------------
+\begin{abstract}
+Large-scale routing and supply-chain systems such as Amazon's
+middle-mile and last-mile networks are routinely modeled as
+mixed-integer linear programs (MILPs) with tens of thousands of
+binary variables and tight operational constraints.
+Classical solvers provide high-quality solutions but are often too
+slow for real-time re-optimization, while existing Neural
+Combinatorial Optimization models do not explicitly encode MILP
+structure or constraint geometry.
+This monograph proposes the \emph{Routing Foundation Model (RFM)},
+a unified neural optimization framework that treats transformer-style
+architectures as learned surrogate solvers for routing MILPs.
+RFM combines (i) MILP-aware encoders, (ii) constraint-specialized
+Mixture-of-Experts, (iii) dual-informed attention via violation
+signals $Ax - b$, (iv) diffusion-style generative priors over
+discrete routing decisions, and (v) world-model components for
+multi-step logistics planning.
+We formulate the framework, connect it to classical primal--dual and
+proximal optimization, and outline experimental protocols and open
+problems toward foundation models for routing and supply-chain
+optimization.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+\pagenumbering{arabic}
+
+
+\chapter{Introduction}
+\label{chap:intro}
+
+Routing and supply-chain networks lie at the heart of large-scale 
+logistics systems such as those operated by Amazon, UPS, DHL, and 
+national postal networks. Every day, these networks must solve millions 
+of tightly constrained routing problems subject to service-level 
+agreements (SLAs), vehicle capacities, network congestion, inventory 
+constraints, and real-time delays. Despite extraordinary advances in 
+operations research and mixed-integer linear programming (MILP), 
+Achieving high-quality routing decisions \emph{at scale and under real-time 
+latency requirements} remains a fundamental challenge.
+
+Classical MILP solvers—such as Gurobi, CPLEX, and SCIP—offer strong 
+optimality guarantees and decades of algorithmic refinement. However, 
+their computational cost grows rapidly with problem size, and latency 
+constraints typically prohibit full re-optimization at the cadence 
+required in dynamic supply-chain environments. In parallel, recent work 
+in Neural Combinatorial Optimization (Neural CO) has shown that 
+transformers and attention-based architectures can learn powerful 
+routing heuristics, but these methods generally do not encode MILP 
+structure, constraint geometry, or dual feasibility. As a result, they 
+struggle with generalization, reliability, and compliance with 
+operational constraints.
+
+This monograph proposes the \textbf{Routing Foundation Model (RFM)}, a 
+unified neural architecture designed to bridge these two worlds. RFM 
+treats transformer-style networks as \emph{learned surrogate solvers} that 
+approximate MILP optimization while incorporating constraint information, 
+domain structure, and world-model reasoning. Rather than replacing 
+classical solvers outright, RFM aims to complement them—providing 
+fast approximate solutions, warm starts, constraint-aware policies, and 
+differentiable components for learning-based systems.
+
+\vspace{0.5em}
+\section{Routing at Industrial Scale}
+
+Modern logistics networks exhibit several defining characteristics that 
+make them uniquely challenging:
+
+\begin{itemize}
+    \item \textbf{Massive scale.} Middle-mile and last-mile networks involve 
+    thousands of facilities, tens of thousands of active routes, and 
+    millions of shipments daily.
+    \item \textbf{Dynamic and real-time conditions.} Traffic, delays, demand 
+    surges, and network imbalances require frequent re-optimization.
+    \item \textbf{Hard constraints.} Capacity, precedence, feasibility, and 
+    SLA requirements make naive learning-based heuristics brittle.
+    \item \textbf{Latency constraints.} Decisions often must be produced in 
+    milliseconds to seconds.
+\end{itemize}
+
+These constraints overwhelm both classical optimization techniques and 
+current Neural CO models when applied directly.
+
+\vspace{0.5em}
+\section{MILPs, Solvers, and Latency Bottlenecks}
+
+Most industrial routing tasks can be modeled as MILPs of the form
+
+\[
+\min_x c^\top x \quad 
+\text{s.t. } Ax \le b,\; x \in \{0,1\}^n.
+\]
+
+The strengths of MILPs include:
+
+\begin{itemize}
+    \item provable optimality or bounded optimality gaps,
+    \item decades of algorithmic engineering,
+    \item mature branching, cutting, heuristics, and primal--dual routines.
+\end{itemize}
+
+However, these advantages come at a cost: solving large MILPs frequently 
+is computationally expensive, especially under real-time demands. Even 
+warm-started or heuristically pruned solvers often exceed latency 
+budgets when scaling beyond hundreds of nodes.
+
+\vspace{0.5em}
+\section{From Neural CO to Neural Surrogate Solvers}
+
+Neural CO models—including pointer networks, attention-based 
+decoders, and transformer policies—have demonstrated remarkable ability 
+to generate feasible routing solutions. Yet they typically operate in 
+\emph{policy space} rather than \emph{constraint space}. They learn to mimic 
+heuristics or generate sequences but lack explicit representations of 
+the MILP structure $(A, b, c)$ or dual signals that guide classical 
+optimization.
+
+This limits their:
+
+\begin{itemize}
+    \item \textbf{generalization} to new topologies,
+    \item \textbf{robustness} under novel constraints,
+    \item \textbf{feasibility} across edge cases,
+    \item \textbf{interpretability} in decision pipelines.
+\end{itemize}
+
+RFM proposes a new perspective: treat the transformer not as a policy 
+generator but as an \textbf{approximate primal--dual optimizer} whose 
+hidden states encode constraint violations, dual ascent signals, and 
+refinement steps. This connects Neural CO with classical optimization 
+theory.
+
+\vspace{0.5em}
+\section{Goals and Scope of This Monograph}
+
+This monograph aims to:
+
+\begin{itemize}
+    \item Develop a unified conceptual and mathematical formulation of 
+    routing MILPs, neural surrogate solvers, and optimization-inspired 
+    transformers.
+    \item Introduce the \textbf{MILP-Transformer}, a differentiable surrogate 
+    solver embedding constraint families, dual updates, and proximal 
+    refinement.
+    \item Present the \textbf{Neural Routing Optimization Model (NROM)}, an 
+    end-to-end routing architecture combining graph encoders, constraint 
+    embeddings, and transformer reasoning.
+    \item Propose a \textbf{diffusion prior over routing structures}, enabling 
+    generative modeling of feasible decisions.
+    \item Frame logistics planning as a \textbf{world-model learning problem}, 
+    where multi-step dynamics such as congestion and SLA slack are 
+    predicted and optimized jointly.
+\end{itemize}
+
+\vspace{0.5em}
+\section*{Contributions}
+
+This monograph makes the following contributions:
+
+\begin{itemize}
+    \item A principled formulation of the Routing Foundation Model (RFM).
+    \item A novel MILP-Transformer architecture connecting transformers 
+    with primal--dual optimization.
+    \item A unified training and evaluation framework for routing surrogate 
+    solvers.
+    \item A roadmap toward large-scale Routing Foundation Models capable of 
+    generalizing across networks, constraints, and operational regimes.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Background: Routing, MILPs, and Neural Optimization}
+\label{chap:background}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Routing and Network Optimization Problems}
+
+\subsection{Vehicle Routing and Variants}
+\subsection{Middle-Mile and Last-Mile Logistics}
+
+\section{Mixed-Integer Linear Programming (MILP)}
+
+\subsection{Canonical MILP Formulation}
+\subsection{Primal--Dual View and Lagrangian Relaxation}
+
+\section{Neural Combinatorial Optimization}
+
+\subsection{Pointer Networks and Attention Models}
+\subsection{Transformer-Based Routing Policies}
+
+\section{Deep Learning for MIP Solving (DL4MIP)}
+
+\subsection{Learning to Branch, Cut, Warm-Start}
+\subsection{Limitations for Real-Time Routing}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Transformers Through the Lens of Optimization}
+\label{chap:transformers_opt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Transformers as Iterative Computation}
+
+\section{Implicit Solvers and Deep Equilibrium Views}
+
+\section{Attention as Proximal-Like Averaging}
+
+\section{Residual Blocks as Learned Descent}
+
+\section{Dual Ascent Interpretation of $A^\top v$}
+
+\section{Implications for Neural MILP Surrogates}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Problem Formulation: Routing MILPs at Scale}
+\label{chap:problem}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Network Model and Decision Variables}
+
+\section{Routing MILP: Full Formulation}
+
+\section{Compact Form: $Ax \le b,\; x \in \{0,1\}^n$}
+
+\section{MILP as a Bipartite Interaction Graph}
+
+\section{Scalability and Operational Requirements}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Routing Foundation Model (RFM): Architecture}
+\label{chap:rfm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Design Principles}
+
+\section{Core Components}
+\begin{itemize}
+    \item MILP-aware encoder
+    \item MILP-Transformer block
+    \item NROM (Neural Routing Optimization Model)
+    \item Diffusion routing prior
+    \item World models for sequential logistics
+\end{itemize}
+
+\section{Data Flow and Inference Pipeline}
+
+\section{Relation to Classical Solvers}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component I: MILP-Transformer}
+\label{chap:milp_transformer}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Soft Integer Relaxation}
+
+\section{Constraint MoE Experts}
+
+\section{Dual-Informed MILP Attention}
+
+\section{Latent Gradient / Proximal Refinement}
+
+\section{Pseudocode}
+
+\begin{algorithm}[h]
+\caption{MILP-Transformer Surrogate Solver}
+\label{alg:milp_transformer}
+\begin{algorithmic}[1]
+\STATE \textbf{Input:} MILP $(A,b,c)$
+\STATE Initialize logits $\ell$
+\STATE $x \leftarrow \sigma(\ell / \tau)$
+\FOR{$t = 1$ to $T$}
+    \STATE $v \leftarrow \max(0, A x - b)$
+    \STATE $h \leftarrow A^\top v$
+    \STATE $x \leftarrow \mathrm{MILPAttn}(x, h)$
+    \STATE $\Phi \leftarrow \mathrm{MoE}(v)$
+    \STATE $\mathcal{L} \leftarrow c^\top x + \Phi$
+    \STATE $x \leftarrow \mathrm{Refine}(x, \nabla_x \mathcal{L})$
+\ENDFOR
+\STATE \textbf{Return:} $x$
+\end{algorithmic}
+\end{algorithm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component II: Neural Routing Optimization Model (NROM)}
+\label{chap:nrom}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Formal Definition}
+
+\section{Variable and Constraint Embeddings}
+
+\section{Graph / Sequence Views}
+
+\section{Training Objectives}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component III: Diffusion Priors for Routing}
+\label{chap:diffusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Latent Route Representations}
+
+\section{Discrete Forward/Reverse Diffusion}
+
+\section{Conditioning on MILP Constraints}
+
+\section{Combining with MILP-Transformer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Component IV: Routing World Models}
+\label{chap:world_model}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Sequential Decision-Making}
+
+\section{Transition Structure}
+
+\section{Learning World Models}
+
+\section{Planning with Surrogates}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Training, Evaluation, and Benchmarks}
+\label{chap:training_eval}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Synthetic Routing Benchmarks}
+
+\section{Industrial Topologies}
+
+\section{Metrics: Gap, Feasibility, Latency}
+
+\section{Baselines}
+
+\section{Ablations}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Related Work}
+\label{chap:related_work}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Neural CO}
+
+\section{DL4MIP}
+
+\section{Differentiable Optimization}
+
+\section{World Models}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Discussion and Open Problems}
+\label{chap:discussion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Replacing Classical MILPs}
+
+\section{Scalability and Robustness}
+
+\section{Hybrid Pipelines}
+
+\section{Toward Routing FMs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Conclusion}
+\label{chap:conclusion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+\chapter{Additional Derivations}
+\chapter{Implementation Details}
+\chapter{Extended Experimental Protocols}
+
+\end{document}
